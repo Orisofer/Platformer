@@ -248,6 +248,37 @@ Transform:
   - {fileID: 446616183}
   m_Father: {fileID: 1205642225}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &369628166
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 369628167}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &369628167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369628166}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.35, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 659904270}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &446616182
 GameObject:
   m_ObjectHideFlags: 0
@@ -342,7 +373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &448857280
 Transform:
   m_ObjectHideFlags: 0
@@ -698,6 +729,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 272674052}
+  - {fileID: 369628167}
   - {fileID: 1354245329}
   m_Father: {fileID: 1360908647}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -738,7 +770,7 @@ GameObject:
   m_Component:
   - component: {fileID: 774463102}
   - component: {fileID: 774463103}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FloorCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1092,9 +1124,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PlayerColliders:
   - {fileID: 272674054}
+  m_PlayerControllerConfiguration: {fileID: 11400000, guid: 093943817fd6d40089bf83eff8f5938c, type: 2}
   m_Rigidbody: {fileID: 659904272}
   m_InputManager: {fileID: 1949443721}
   m_UpdateManager: {fileID: 1659594032}
+  m_PlayerGroundPoint: {fileID: 369628167}
+  m_PlayerContext:
+    Rigidbody2D: {fileID: 0}
+    Animator: {fileID: 0}
+    MoveHorizontal: {x: 0, y: 0}
+    Velocity: {x: 0, y: 0}
+    HorizontalSpeed: 0
+    JumpForce: 0
+    JumpPressed: 0
+    Grounded: 0
+  m_GroundMask:
+    serializedVersion: 2
+    m_Bits: 64
   <EnableLogging>k__BackingField: 1
 --- !u!1 &1628405254
 GameObject:
