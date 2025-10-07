@@ -1,9 +1,10 @@
 using UnityEngine;
 
+[System.Serializable]
 public struct FrameInput
 {
     public Vector2 Direction;
-    public float Time;
+    public double Time;
     public bool JumpPressed;
     public bool JumpHeld;
     public bool JumpReleased;

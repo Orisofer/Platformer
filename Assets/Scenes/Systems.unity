@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 272674052}
   - component: {fileID: 272674053}
   - component: {fileID: 272674054}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: ColliderBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -214,6 +214,37 @@ MonoBehaviour:
   m_Graphic: {fileID: 448857280}
   m_IsTrigger: 0
   m_DrawGizmos: 1
+--- !u!1 &287436427
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 287436428}
+  m_Layer: 11
+  m_Name: ColliderGroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &287436428
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 287436427}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 659904270}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &354005172
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,13 +367,13 @@ GameObject:
   m_Component:
   - component: {fileID: 448857280}
   - component: {fileID: 448857281}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &448857280
 Transform:
   m_ObjectHideFlags: 0
@@ -677,7 +708,7 @@ GameObject:
   m_Component:
   - component: {fileID: 659904270}
   - component: {fileID: 659904272}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Physics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -698,6 +729,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 272674052}
+  - {fileID: 287436428}
   - {fileID: 1354245329}
   m_Father: {fileID: 1360908647}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -738,7 +770,7 @@ GameObject:
   m_Component:
   - component: {fileID: 774463102}
   - component: {fileID: 774463103}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FloorCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1022,7 +1054,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1354245329}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1055,7 +1087,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1360908647}
   - component: {fileID: 1360908648}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1092,6 +1124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PlayerColliders:
   - {fileID: 272674054}
+  m_PlayerControllerConfiguration: {fileID: 0}
   m_Rigidbody: {fileID: 659904272}
   m_InputManager: {fileID: 1949443721}
   m_UpdateManager: {fileID: 1659594032}

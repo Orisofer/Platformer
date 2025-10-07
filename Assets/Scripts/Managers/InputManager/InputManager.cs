@@ -16,7 +16,7 @@ public class InputManager : MonoBehaviour, ILogable, IUpdate
     public int UpdatePriority { get; set; }
     public bool EnableUpdate { get; set; }
 
-    private float m_Time;
+    private double m_Time;
     
     private void Start()
     {

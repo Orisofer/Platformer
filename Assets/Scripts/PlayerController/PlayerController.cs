@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour, IUpdate, ILogable
+public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 {
     private const int INPUT_UPDATE_PRIORITY = -999;
     
@@ -18,14 +17,16 @@ public class PlayerController : MonoBehaviour, IUpdate, ILogable
     private Vector2 m_Velocity;
     
     public int UpdatePriority { get; set; }
+    public int FixedUpdatePriority { get; set; }
     public bool EnableUpdate { get; set; }
-    
+    public bool EnableFixedUpdate { get; set; }
     
     private void Start()
     {
         UpdatePriority = INPUT_UPDATE_PRIORITY;
         
         m_UpdateManager.AddToUpdate(this);
+        m_UpdateManager.AddToFixedUpdate(this);
         
         for (int i = 0; i < m_PlayerColliders.Count; i++)
         {
@@ -33,34 +34,31 @@ public class PlayerController : MonoBehaviour, IUpdate, ILogable
         }
         
         m_PlayerContext = new PlayerContext();
-        
-        EnableUpdate = true;
+
+        SetUpdate(true);
     }
     
     public void OnUpdate(float deltaTime)
     {
-        FrameInput input = m_InputManager.FrameInput;
+        
+    }
+    
+    public void OnFixedUpdate()
+    {
+        
+    }
 
-        if (input.JumpPressed)
-        {
-            Logger.Log(this, "Junmping");
-        }
-
-        if (input.JumpHeld)
-        {
-            Logger.Log(this, "Junmp helllllld");
-        }
-
-        if (input.JumpReleased)
-        {
-            Logger.Log(this, "Junmp released");
-        }
+    private void SetUpdate(bool enabled)
+    {
+        EnableUpdate = enabled;
+        EnableFixedUpdate = enabled;
     }
 
     private void OnDestroy()
     {
-        EnableUpdate = true;
+        SetUpdate(false);
         
+        m_UpdateManager.RemoveFromUpdate(this);
         m_UpdateManager.RemoveFromUpdate(this);
     }
 }
