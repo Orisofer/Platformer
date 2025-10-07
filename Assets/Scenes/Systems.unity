@@ -1124,7 +1124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PlayerColliders:
   - {fileID: 272674054}
-  m_PlayerControllerConfiguration: {fileID: 0}
+  m_PlayerControllerConfiguration: {fileID: 11400000, guid: 09f39bc89068f4c83be6cd3087feb207, type: 2}
   m_Rigidbody: {fileID: 659904272}
   m_InputManager: {fileID: 1949443721}
   m_UpdateManager: {fileID: 1659594032}

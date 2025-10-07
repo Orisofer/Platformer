@@ -7,6 +7,8 @@ public class PlayerCollider : MonoBehaviour
     [SerializeField] private Transform m_Graphic;
     [SerializeField] private bool m_IsTrigger;
     [SerializeField] private bool m_DrawGizmos;
+    
+    public BoxCollider2D Collider => m_Collider;
 
     public void Initialize()
     {

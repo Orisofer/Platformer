@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
   MaxSpeed: 14
   Acceleration: 120
   GroundDeceleration: 60
