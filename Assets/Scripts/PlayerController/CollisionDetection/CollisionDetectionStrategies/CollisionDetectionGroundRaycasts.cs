@@ -52,7 +52,6 @@ public class CollisionDetectionGroundRaycasts : ICollisionDetectionStrategy, ILo
         {
             Collided = false,
             CollidedTransform = null,
-            NumRayHits = 0,
         };
         
         float colliderPositionX = m_CachedCollider.transform.position.x;
@@ -74,7 +73,6 @@ public class CollisionDetectionGroundRaycasts : ICollisionDetectionStrategy, ILo
             {
                 result.Collided = true;
                 result.CollidedTransform = rayCastHit.transform;
-                result.NumRayHits++;
             }
         }
         

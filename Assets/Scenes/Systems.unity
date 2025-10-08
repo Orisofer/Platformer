@@ -129,7 +129,6 @@ GameObject:
   m_Component:
   - component: {fileID: 272674052}
   - component: {fileID: 272674053}
-  - component: {fileID: 272674054}
   m_Layer: 11
   m_Name: ColliderBody
   m_TagString: Untagged
@@ -198,22 +197,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.5, y: 0.7}
   m_EdgeRadius: 0
---- !u!114 &272674054
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 272674051}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aca6963a7568d4594847ee10eb84ac78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Collider: {fileID: 272674053}
-  m_Graphic: {fileID: 448857280}
-  m_IsTrigger: 0
-  m_DrawGizmos: 1
 --- !u!1 &287436427
 GameObject:
   m_ObjectHideFlags: 0
@@ -1122,12 +1105,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89a8b31eada9c4056bffeeb96ee2880d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PlayerColliders:
-  - {fileID: 272674054}
   m_PlayerControllerConfiguration: {fileID: 11400000, guid: 09f39bc89068f4c83be6cd3087feb207, type: 2}
   m_Rigidbody: {fileID: 659904272}
+  m_BoxCollider: {fileID: 272674053}
   m_InputManager: {fileID: 1949443721}
   m_UpdateManager: {fileID: 1659594032}
+  m_PlayerLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   <EnableLogging>k__BackingField: 1
 --- !u!1 &1628405254
 GameObject:

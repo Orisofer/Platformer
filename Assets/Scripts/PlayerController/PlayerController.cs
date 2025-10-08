@@ -5,17 +5,17 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 {
     private const int INPUT_UPDATE_PRIORITY = -999;
     
-    [SerializeField] private List<PlayerCollider> m_PlayerColliders;
     [SerializeField] private PlayerControllerConfiguration m_PlayerControllerConfiguration;
     [SerializeField] private Rigidbody2D m_Rigidbody;
+    [SerializeField] private BoxCollider2D m_BoxCollider;
     [SerializeField] private InputManager m_InputManager;
     [SerializeField] private UpdateManager m_UpdateManager;
+    [SerializeField] private LayerMask m_PlayerLayer;
     
     [field: SerializeField] public bool EnableLogging { get; set; }
     
     private PlayerCollisionDetection m_CollisionDetection;
     private PlayerContext m_PlayerContext;
-    private Vector2 m_Velocity;
     
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
@@ -29,12 +29,9 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         m_UpdateManager.AddToUpdate(this);
         m_UpdateManager.AddToFixedUpdate(this);
         
-        for (int i = 0; i < m_PlayerColliders.Count; i++)
-        {
-            m_PlayerColliders[i].Initialize();
-        }
-        
         m_PlayerContext = new PlayerContext();
+        m_PlayerContext.ColliderBody = m_BoxCollider;
+        m_PlayerContext.PlayerLayer = m_PlayerLayer;
 
         InitializeCollisionDetections();
 
@@ -45,8 +42,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     {
         m_CollisionDetection = new PlayerCollisionDetection(this, true);
 
-        ICollisionDetectionStrategy groundDetection =
-            new CollisionDetectionGroundRaycasts(m_PlayerColliders[0].Collider, true, true);
+        ICollisionDetectionStrategy groundDetection = new CollisionDetectionBoxCast(m_PlayerContext);
         
         m_CollisionDetection.AddCheck(groundDetection);
     }
@@ -54,14 +50,13 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     public void OnUpdate(float deltaTime)
     {
         HandleJumpParameters();
-        
     }
 
     private void HandleJumpParameters()
     {
         if (m_InputManager.FrameInput.JumpPressed)
         {
-            m_PlayerContext.TimeJumpWasPressed = m_InputManager.FrameInput.Time;
+            m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
 
             if (!m_PlayerContext.HasJumpToConsume)
             {
@@ -81,63 +76,55 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void HandleGroundState()
     {
-        CollisionDetectionResult groundCheck = m_CollisionDetection.Perform<CollisionDetectionGroundRaycasts>();
+        CollisionDetectionResult groundCheck = m_CollisionDetection.Perform<CollisionDetectionBoxCast>();
 
         // we hit the ground
         if (!m_PlayerContext.Grounded && groundCheck.Collided)
         {
             m_PlayerContext.Grounded = true;
         }
-        
         // we are no longer on the ground (fall or jump)
-        if (m_PlayerContext.Grounded && !groundCheck.Collided)
+        else if (m_PlayerContext.Grounded && !groundCheck.Collided)
         {
             m_PlayerContext.Grounded = false;
+            m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
         }
     }
     
     private void HandleJumpState()
     {
-        if (m_PlayerContext.Grounded && m_PlayerContext.HasJumpToConsume)
+        if (!m_PlayerContext.HasJumpToConsume) return;
+
+        if (m_PlayerContext.Grounded)
         {
-            PerformJump();
-        }
-        else if (m_PlayerContext.Grounded && m_PlayerContext.Jumping)
-        {
-            m_PlayerContext.Jumping = false;
+            ExecuteJump();
         }
     }
     
-    private void PerformJump()
+    private void ExecuteJump()
     {
-        m_PlayerContext.HasJumpToConsume = false;
         m_PlayerContext.Jumping = true;
-        m_PlayerContext.TimeJumpWasPressed = 0;
-        
-        m_Velocity.y = m_PlayerControllerConfiguration.JumpPower;
+        m_PlayerContext.Velocity.y = m_PlayerControllerConfiguration.JumpPower;
     }
     
     private void HandleGravity()
     {
-        if (!m_PlayerContext.Grounded && m_PlayerContext.Jumping)
+        if (m_PlayerContext.Grounded && m_PlayerContext.Velocity.y <= 0f)
+        {
+            
+        }
+        else
         {
             float airGravity = m_PlayerControllerConfiguration.FallAcceleration;
             float maxFallSpeed = m_PlayerControllerConfiguration.MaxFallSpeed;
 
-            m_Velocity.y = Mathf.MoveTowards(m_Velocity.y, -maxFallSpeed, airGravity * Time.fixedDeltaTime);
-        }
-        else
-        {
-            if (!m_PlayerContext.Jumping)
-            {
-                m_Velocity.y = 0;
-            }
+            m_PlayerContext.Velocity.y = Mathf.MoveTowards(m_PlayerContext.Velocity.y, -maxFallSpeed, airGravity * Time.fixedDeltaTime);
         }
     }
     
     private void ApplyMovement()
     {
-        m_Rigidbody.linearVelocity = m_Velocity;
+        m_Rigidbody.linearVelocity = m_PlayerContext.Velocity;
     }
 
     private void SetUpdate(bool enabled)
