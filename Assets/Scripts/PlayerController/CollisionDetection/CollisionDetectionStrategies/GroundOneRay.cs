@@ -30,7 +30,7 @@ public class GroundOneRay : ICollisionDetectionStrategy
         float originY = colBounds.min.y + skinWidth;
         float originX = colBounds.center.x;
         Vector2 origin = new Vector2(originX, originY);
-        float rayDistance = skinWidth + Mathf.Max(0f, -m_Ctx.Velocity.y * Time.fixedDeltaTime);
+        float rayDistance = skinWidth + Mathf.Max(0f, -m_Ctx.ThisFrameVelocity.y * Time.fixedDeltaTime);
         
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, rayDistance);
 
@@ -47,7 +47,7 @@ public class GroundOneRay : ICollisionDetectionStrategy
             
             Vector2 colStart = new Vector2(colBounds.min.x, colBounds.min.y);
             Vector2 colEnd = new Vector2(colBounds.max.x, colBounds.min.y);
-            Debug.DrawRay(colStart, (colEnd - colStart) * colBounds.extents.x, Color.yellow);
+            Debug.DrawRay(colStart, (colEnd - colStart) * (colBounds.size.x), Color.yellow);
         }
         
         Physics2D.queriesStartInColliders = m_CachedQueriesStartInColliders;

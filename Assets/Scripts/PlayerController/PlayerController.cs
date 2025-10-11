@@ -24,18 +24,32 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     
     private void Start()
     {
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        InitializePlayerContext();
+        InitializeCollisionDetections();
+        InitializeUpdate();
+    }
+
+    private void InitializeUpdate()
+    {
         UpdatePriority = INPUT_UPDATE_PRIORITY;
         
         m_UpdateManager.AddToUpdate(this);
         m_UpdateManager.AddToFixedUpdate(this);
         
+        SetUpdate(true);
+    }
+
+    private void InitializePlayerContext()
+    {
         m_PlayerContext = new PlayerContext();
         m_PlayerContext.ColliderBody = m_BoxCollider;
         m_PlayerContext.PlayerLayer = m_PlayerLayer;
-
-        InitializeCollisionDetections();
-
-        SetUpdate(true);
+        m_PlayerContext.SkinWidth = 0.05f;
     }
 
     private void InitializeCollisionDetections()
@@ -49,10 +63,10 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     public void OnUpdate(float deltaTime)
     {
-        HandleJumpParameters();
+        UpdateJumpParameters();
     }
 
-    private void HandleJumpParameters()
+    private void UpdateJumpParameters()
     {
         if (m_InputManager.FrameInput.JumpPressed)
         {
@@ -68,9 +82,9 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     public void OnFixedUpdate()
     {
         HandleGroundState();
-        //HandleJumpState();
+        
         HandleGravity();
-
+        
         ApplyMovement();
     }
 
@@ -82,6 +96,10 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         if (!m_PlayerContext.Grounded && groundCheck.Collided)
         {
             m_PlayerContext.Grounded = true;
+            if (SnapToGround(groundCheck))
+            {
+                m_PlayerContext.ThisFrameVelocity.y = 0f;
+            }
         }
         // we are no longer on the ground (fall or jump)
         else if (m_PlayerContext.Grounded && !groundCheck.Collided)
@@ -90,7 +108,26 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
         }
     }
-    
+
+    private bool SnapToGround(CollisionDetectionResult collisionResult)
+    {
+        float playerHalfSize = m_BoxCollider.bounds.extents.y;
+        float groundHalfSize = collisionResult.CollidedTransform.transform.localScale.y * 0.5f;
+        
+        float playerOrigin = transform.position.y - playerHalfSize;
+        float groundOrigin = collisionResult.CollidedTransform.transform.position.y + groundHalfSize;
+        
+        float actualPlayerGroundDistance = playerOrigin - groundOrigin;
+
+        if (actualPlayerGroundDistance > 0.001f)
+        {
+            transform.position = transform.position.Add(y : -actualPlayerGroundDistance);
+            return true;
+        }
+
+        return false;
+    }
+
     private void HandleJumpState()
     {
         if (!m_PlayerContext.HasJumpToConsume) return;
@@ -104,27 +141,27 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     private void ExecuteJump()
     {
         m_PlayerContext.Jumping = true;
-        m_PlayerContext.Velocity.y = m_PlayerControllerConfiguration.JumpPower;
+        m_PlayerContext.ThisFrameVelocity.y = m_PlayerControllerConfiguration.JumpPower;
     }
     
     private void HandleGravity()
     {
-        if (m_PlayerContext.Grounded && m_PlayerContext.Velocity.y <= 0f)
+        if (m_PlayerContext.Grounded && m_PlayerContext.ThisFrameVelocity.y <= 0f)
         {
-            m_PlayerContext.Velocity.y = 0f;
+            m_PlayerContext.ThisFrameVelocity.y = 0f;
         }
         else
         {
             float airGravity = m_PlayerControllerConfiguration.FallAcceleration;
             float maxFallSpeed = m_PlayerControllerConfiguration.MaxFallSpeed;
 
-            m_PlayerContext.Velocity.y = Mathf.MoveTowards(m_PlayerContext.Velocity.y, -maxFallSpeed, airGravity * Time.fixedDeltaTime);
+            m_PlayerContext.ThisFrameVelocity.y = Mathf.MoveTowards(m_PlayerContext.ThisFrameVelocity.y, -maxFallSpeed, airGravity * Time.fixedDeltaTime);
         }
     }
     
     private void ApplyMovement()
     {
-        m_Rigidbody.linearVelocity = m_PlayerContext.Velocity;
+        m_Rigidbody.linearVelocity = m_PlayerContext.ThisFrameVelocity;
     }
 
     private void SetUpdate(bool enabled)
