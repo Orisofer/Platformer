@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 275757549092474274}
   - component: {fileID: 347294072969194161}
   m_Layer: 11
-  m_Name: ColliderGroundCheck
+  m_Name: ColliderBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -249,10 +249,31 @@ MonoBehaviour:
   m_BoxCollider: {fileID: 347294072969194161}
   m_InputManager: {fileID: 0}
   m_UpdateManager: {fileID: 0}
+  m_PlayerContext:
+    ColliderBody: {fileID: 0}
+    FrameInput:
+      Direction: {x: 0, y: 0}
+      Time: 0
+      JumpPressed: 0
+      JumpHeld: 0
+      JumpReleased: 0
+      MoveStarted: 0
+      MoveFinished: 0
+    PlayerLayer:
+      serializedVersion: 2
+      m_Bits: 0
+    ThisFrameVelocity: {x: 0, y: 0}
+    LastFrameVelocity: {x: 0, y: 0}
+    SkinWidth: 0
+    TimeLeftTheGround: 0
+    Grounded: 0
+    Jumping: 0
+    HasJumpToConsume: 0
   m_PlayerLayer:
     serializedVersion: 2
     m_Bits: 2048
   <EnableLogging>k__BackingField: 1
+  <EnableCollisionVisualizers>k__BackingField: 1
 --- !u!50 &809010914361207517
 Rigidbody2D:
   serializedVersion: 5

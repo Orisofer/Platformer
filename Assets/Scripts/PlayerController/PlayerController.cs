@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     [SerializeField] private LayerMask m_PlayerLayer;
     
     [field: SerializeField] public bool EnableLogging { get; set; }
+    [field: SerializeField] public bool EnableCollisionVisualizers { get; set; }
     
     private PlayerCollisionDetection m_CollisionDetection;
     
@@ -56,7 +57,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     {
         m_CollisionDetection = new PlayerCollisionDetection(this, true);
 
-        ICollisionDetectionStrategy groundDetection = new GroundOneRay(m_PlayerContext, true);
+        ICollisionDetectionStrategy groundDetection = new GroundOneRay(m_PlayerContext, EnableCollisionVisualizers);
         
         m_CollisionDetection.AddCheck(groundDetection);
     }
