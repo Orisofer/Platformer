@@ -10,12 +10,12 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     [SerializeField] private BoxCollider2D m_BoxCollider;
     [SerializeField] private InputManager m_InputManager;
     [SerializeField] private UpdateManager m_UpdateManager;
+    [SerializeField] private PlayerContext m_PlayerContext;
     [SerializeField] private LayerMask m_PlayerLayer;
     
     [field: SerializeField] public bool EnableLogging { get; set; }
     
     private PlayerCollisionDetection m_CollisionDetection;
-    private PlayerContext m_PlayerContext;
     
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
@@ -81,11 +81,15 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     public void OnFixedUpdate()
     {
+        StoreLastFrameState();
         HandleGroundState();
-        
         HandleGravity();
-        
         ApplyMovement();
+    }
+
+    private void StoreLastFrameState()
+    {
+        m_PlayerContext.LastFrameVelocity = m_Rigidbody.linearVelocity;
     }
 
     private void HandleGroundState()
@@ -96,6 +100,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         if (!m_PlayerContext.Grounded && groundCheck.Collided)
         {
             m_PlayerContext.Grounded = true;
+            
             if (SnapToGround(groundCheck))
             {
                 m_PlayerContext.ThisFrameVelocity.y = 0f;
@@ -155,7 +160,10 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             float airGravity = m_PlayerControllerConfiguration.FallAcceleration;
             float maxFallSpeed = m_PlayerControllerConfiguration.MaxFallSpeed;
 
-            m_PlayerContext.ThisFrameVelocity.y = Mathf.MoveTowards(m_PlayerContext.ThisFrameVelocity.y, -maxFallSpeed, airGravity * Time.fixedDeltaTime);
+            m_PlayerContext.ThisFrameVelocity.y = Mathf.MoveTowards(
+                m_PlayerContext.ThisFrameVelocity.y,
+                -maxFallSpeed,
+                airGravity * Time.fixedDeltaTime);
         }
     }
     
