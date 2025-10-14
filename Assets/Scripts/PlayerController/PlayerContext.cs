@@ -9,9 +9,10 @@ public class PlayerContext
     public LayerMask PlayerLayer;
     public Vector2 ThisFrameVelocity;
     public Vector2 LastFrameVelocity;
-    public float SkinWidth;
     public double TimeLeftTheGround;
+    public float SkinWidth;
+    public int AvailableJumps;
     public bool Grounded;
+    public bool AllowJump;
     public bool Jumping;
-    public bool HasJumpToConsume;
 }

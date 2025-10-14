@@ -129,7 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 354005173}
   m_Layer: 0
-  m_Name: SceneColliders
+  m_Name: SceneGeometry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -660,7 +660,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1205642225}
   m_Layer: 0
-  m_Name: Scene
+  m_Name: SceneEnvironment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -961,6 +961,54 @@ Transform:
   - {fileID: 976722370}
   m_Father: {fileID: 1205642225}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2061068474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2061068475}
+  - component: {fileID: 2061068476}
+  m_Layer: 0
+  m_Name: FPSDisplayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2061068475
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061068474}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2061068476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061068474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc27250e44655428d871c4a2919d57d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sampleSize: 60
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  fontSize: 24
+  position: {x: 10, y: 10}
 --- !u!1 &2123842812
 GameObject:
   m_ObjectHideFlags: 0
@@ -1220,6 +1268,10 @@ PrefabInstance:
       propertyPath: m_UpdateManager
       value: 
       objectReference: {fileID: 1659594032}
+    - target: {fileID: 6166085042707946251, guid: 3b809a4af13264ee6b8dc9a5508c3dc0, type: 3}
+      propertyPath: <EnableCollisionVisualizers>k__BackingField
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1234,3 +1286,4 @@ SceneRoots:
   - {fileID: 1775308559}
   - {fileID: 2435746212798664438}
   - {fileID: 1205642225}
+  - {fileID: 2061068475}

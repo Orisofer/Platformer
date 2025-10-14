@@ -71,11 +71,9 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     {
         if (m_InputManager.FrameInput.JumpPressed)
         {
-            m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
-
-            if (!m_PlayerContext.HasJumpToConsume)
+            if (m_PlayerContext.Grounded && m_PlayerContext.AvailableJumps > 0)
             {
-                m_PlayerContext.HasJumpToConsume = true;
+                m_PlayerContext.AllowJump = true;
             }
         }
     }
@@ -84,6 +82,8 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     {
         StoreLastFrameState();
         HandleGroundState();
+        HandleJumpState();
+        HandleHorizontalMovement();
         HandleGravity();
         ApplyMovement();
     }
@@ -101,6 +101,8 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         if (!m_PlayerContext.Grounded && groundCheck.Collided)
         {
             m_PlayerContext.Grounded = true;
+
+            ResetJumpParameters();
             
             if (SnapToGround(groundCheck))
             {
@@ -113,6 +115,13 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             m_PlayerContext.Grounded = false;
             m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
         }
+    }
+
+    private void ResetJumpParameters()
+    {
+        m_PlayerContext.Jumping = false;
+        m_PlayerContext.TimeLeftTheGround = 0;
+        m_PlayerContext.AvailableJumps = 1;
     }
 
     private bool SnapToGround(CollisionDetectionResult collisionResult)
@@ -136,18 +145,56 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void HandleJumpState()
     {
-        if (!m_PlayerContext.HasJumpToConsume) return;
-
-        if (m_PlayerContext.Grounded)
-        {
-            ExecuteJump();
-        }
+        if (!m_PlayerContext.AllowJump) return;
+        if (m_PlayerContext.AvailableJumps == 0) return;
+        
+        ExecuteJump();
     }
     
     private void ExecuteJump()
     {
+        m_PlayerContext.AvailableJumps--;
+
+        if (m_PlayerContext.AvailableJumps == 0)
+        {
+            m_PlayerContext.AllowJump = false;
+        }
+        
         m_PlayerContext.Jumping = true;
         m_PlayerContext.ThisFrameVelocity.y = m_PlayerControllerConfiguration.JumpPower;
+    }
+
+    private void HandleHorizontalMovement()
+    {
+        if (m_InputManager.FrameInput.Direction == Vector2.zero)
+        {
+            float deceleration;
+
+            if (m_PlayerContext.Grounded)
+            {
+                deceleration = m_PlayerControllerConfiguration.GroundDeceleration;
+            }
+            else
+            {
+                deceleration = m_PlayerControllerConfiguration.AirDeceleration;
+            }
+            
+            m_PlayerContext.ThisFrameVelocity.x = Mathf.MoveTowards(
+                m_PlayerContext.ThisFrameVelocity.x,
+                0,
+                deceleration * Time.fixedDeltaTime);
+        }
+        else
+        {
+            float direction = m_InputManager.FrameInput.Direction.x;
+            float maxHorizontalSpeed = m_PlayerControllerConfiguration.MaxSpeed * direction;
+            float acceleration = m_PlayerControllerConfiguration.Acceleration;
+            
+            m_PlayerContext.ThisFrameVelocity.x = Mathf.MoveTowards(
+                m_PlayerContext.ThisFrameVelocity.x,
+                maxHorizontalSpeed,
+                acceleration * Time.fixedDeltaTime);
+        }
     }
     
     private void HandleGravity()
