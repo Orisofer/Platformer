@@ -231,6 +231,6 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         SetUpdate(false);
         
         m_UpdateManager.RemoveFromUpdate(this);
-        m_UpdateManager.RemoveFromUpdate(this);
+        m_UpdateManager.RemoveFromFixedUpdate(this);
     }
 }

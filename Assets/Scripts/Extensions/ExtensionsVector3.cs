@@ -8,7 +8,11 @@ public static class ExtensionsVector3
         float addY = y ?? 0;
         float addZ = z ?? 0;
         
-        return new Vector3(vec3.x + addX, vec3.y + addY, vec3.z + addZ);
+        vec3.x += addX;
+        vec3.y += addY;
+        vec3.z += addZ;
+        
+        return vec3;
     }
     
     public static Vector3 Replace(this Vector3 vec3, float? x = null, float? y = null, float? z = null)
