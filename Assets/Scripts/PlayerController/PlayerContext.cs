@@ -7,8 +7,7 @@ public class PlayerContext
     public BoxCollider2D ColliderBody;
     public FrameInput FrameInput;
     public LayerMask PlayerLayer;
-    public Vector2 ThisFrameVelocity;
-    public Vector2 LastFrameVelocity;
+    public Vector2 FrameVelocity;
     public double TimeLeftTheGround;
     public float SkinWidth;
     public int AvailableJumps;

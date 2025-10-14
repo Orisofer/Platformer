@@ -41,7 +41,7 @@ public class CeilingThreeRays : ICollisionDetectionStrategy
     {
         Bounds colBounds = m_BoxCollider2D.bounds;
         float originY = colBounds.max.y - m_SkinWidth;
-        float rayDistance = m_SkinWidth + Mathf.Max(0f, m_Ctx.ThisFrameVelocity.y * Time.fixedDeltaTime);
+        float rayDistance = m_SkinWidth + Mathf.Max(0f, m_Ctx.FrameVelocity.y * Time.fixedDeltaTime);
         
         int hitPattern = 0b00000000;
         int overallHitsThisRound = 0;

@@ -29,7 +29,7 @@ public class GroundOneRay : ICollisionDetectionStrategy
         float originY = colBounds.min.y + m_SkinWidth;
         float originX = colBounds.center.x;
         Vector2 origin = new Vector2(originX, originY);
-        float rayDistance = m_SkinWidth + Mathf.Max(0f, -m_Ctx.ThisFrameVelocity.y * Time.fixedDeltaTime);
+        float rayDistance = m_SkinWidth + Mathf.Max(0f, -m_Ctx.FrameVelocity.y * Time.fixedDeltaTime);
         
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, rayDistance, m_Filter.layerMask);
 

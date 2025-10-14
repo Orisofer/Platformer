@@ -41,7 +41,7 @@ public class WallLeftThreeRays : ICollisionDetectionStrategy
     {
         Bounds colBounds = m_BoxCollider2D.bounds;
         float originX = colBounds.min.x + m_SkinWidth;
-        float rayDistance = m_SkinWidth + Mathf.Max(0f, -m_Ctx.ThisFrameVelocity.x * Time.fixedDeltaTime);
+        float rayDistance = m_SkinWidth + Mathf.Max(0f, -m_Ctx.FrameVelocity.x * Time.fixedDeltaTime);
         
         int hitPattern = 0b00000000;
         int overallHitsThisRound = 0;

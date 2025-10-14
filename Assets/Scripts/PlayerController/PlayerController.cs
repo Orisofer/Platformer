@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
@@ -86,7 +85,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void StoreLastFrameState()
     {
-        m_PlayerContext.LastFrameVelocity = m_Rigidbody.linearVelocity;
+        m_PlayerContext.FrameVelocity = m_Rigidbody.linearVelocity;
     }
 
     private void HandleGroundState()
@@ -102,7 +101,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             
             if (SnapToGround(groundCheck))
             {
-                m_PlayerContext.ThisFrameVelocity.y = 0f;
+                m_PlayerContext.FrameVelocity.y = 0f;
             }
         }
         // we are no longer on the ground (fall or jump)
@@ -168,7 +167,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             {
                 if (SnapToCeiling(ceilingCheck))
                 {
-                    m_PlayerContext.ThisFrameVelocity.y = 0f;
+                    m_PlayerContext.FrameVelocity.y = 0f;
                 }
             }
         }
@@ -189,7 +188,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         }
         
         m_PlayerContext.Jumping = true;
-        m_PlayerContext.ThisFrameVelocity.y = m_PlayerControllerConfiguration.JumpPower;
+        m_PlayerContext.FrameVelocity.y = m_PlayerControllerConfiguration.JumpPower;
     }
 
     private void HandleHorizontalState()
@@ -207,8 +206,8 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
                 deceleration = m_PlayerControllerConfiguration.AirDeceleration;
             }
             
-            m_PlayerContext.ThisFrameVelocity.x = Mathf.MoveTowards(
-                m_PlayerContext.ThisFrameVelocity.x,
+            m_PlayerContext.FrameVelocity.x = Mathf.MoveTowards(
+                m_PlayerContext.FrameVelocity.x,
                 0,
                 deceleration * Time.fixedDeltaTime);
         }
@@ -222,7 +221,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
                 if (leftWallCheck)
                 {
-                    m_PlayerContext.ThisFrameVelocity.x = 0f;
+                    m_PlayerContext.FrameVelocity.x = 0f;
                     return;
                 }
             }
@@ -233,7 +232,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
                 if (rightWallCheck)
                 {
-                    m_PlayerContext.ThisFrameVelocity.x = 0f;
+                    m_PlayerContext.FrameVelocity.x = 0f;
                     return;
                 }
             }
@@ -241,8 +240,8 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             float maxHorizontalSpeed = m_PlayerControllerConfiguration.MaxSpeed * direction;
             float acceleration = m_PlayerControllerConfiguration.Acceleration;
             
-            m_PlayerContext.ThisFrameVelocity.x = Mathf.MoveTowards(
-                m_PlayerContext.ThisFrameVelocity.x,
+            m_PlayerContext.FrameVelocity.x = Mathf.MoveTowards(
+                m_PlayerContext.FrameVelocity.x,
                 maxHorizontalSpeed,
                 acceleration * Time.fixedDeltaTime);
         }
@@ -250,17 +249,17 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     
     private void HandleGravity()
     {
-        if (m_PlayerContext.Grounded && m_PlayerContext.ThisFrameVelocity.y <= 0f)
+        if (m_PlayerContext.Grounded && m_PlayerContext.FrameVelocity.y <= 0f)
         {
-            m_PlayerContext.ThisFrameVelocity.y = 0f;
+            m_PlayerContext.FrameVelocity.y = 0f;
         }
         else
         {
             float airGravity = m_PlayerControllerConfiguration.FallAcceleration;
             float maxFallSpeed = m_PlayerControllerConfiguration.MaxFallSpeed;
 
-            m_PlayerContext.ThisFrameVelocity.y = Mathf.MoveTowards(
-                m_PlayerContext.ThisFrameVelocity.y,
+            m_PlayerContext.FrameVelocity.y = Mathf.MoveTowards(
+                m_PlayerContext.FrameVelocity.y,
                 -maxFallSpeed,
                 airGravity * Time.fixedDeltaTime);
         }
@@ -268,7 +267,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     
     private void ApplyMovement()
     {
-        m_Rigidbody.linearVelocity = m_PlayerContext.ThisFrameVelocity;
+        m_Rigidbody.linearVelocity = m_PlayerContext.FrameVelocity;
     }
 
     private void SetUpdate(bool enabled)
