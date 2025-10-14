@@ -18,9 +18,6 @@ public class PlayerControllerConfiguration : ScriptableObject
     [Tooltip("Deceleration in air only after stopping input mid-air")]
     public float AirDeceleration = 30;
 
-    [Tooltip("The detection distance for grounding and roof detection"), Range(0f, 0.5f)]
-    public float GrounderDistance = 0.05f;
-
     [Header("JUMP")] [Tooltip("The immediate velocity applied when jumping")]
     public float JumpPower = 36;
 
