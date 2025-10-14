@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GroundThreeRays : ICollisionDetectionStrategy
+public class WallRightThreeRays : ICollisionDetectionStrategy
 {
     private PlayerContext m_Ctx;
     private BoxCollider2D m_BoxCollider2D;
@@ -12,7 +12,7 @@ public class GroundThreeRays : ICollisionDetectionStrategy
     
     public bool EnableDebugging { get; set; }
     
-    public GroundThreeRays(PlayerContext cachedCollider, bool withDebugging)
+    public WallRightThreeRays(PlayerContext cachedCollider, bool withDebugging)
     {
         m_Ctx = cachedCollider;
         EnableDebugging = withDebugging;
@@ -33,24 +33,24 @@ public class GroundThreeRays : ICollisionDetectionStrategy
     private void InitRaysIntervals()
     {
         m_HitsBuffer = new RaycastHit2D[1];
-
-        m_RaysInterval = (m_BoxCollider2D.bounds.size.x - (m_SkinWidth * 2)) * 0.5f;
+        
+        m_RaysInterval = (m_BoxCollider2D.bounds.size.y - (m_SkinWidth * 2)) * 0.5f;
     }
     
     public ref readonly CollisionDetectionResult Calculate()
     {
         Bounds colBounds = m_BoxCollider2D.bounds;
-        float originY = colBounds.min.y + m_SkinWidth;
-        float rayDistance = m_SkinWidth + Mathf.Max(0f, -m_Ctx.ThisFrameVelocity.y * Time.fixedDeltaTime);
+        float originX = colBounds.max.x - m_SkinWidth;
+        float rayDistance = m_SkinWidth + Mathf.Max(0f, m_Ctx.ThisFrameVelocity.x * Time.fixedDeltaTime);
         
         int hitPattern = 0b00000000;
         int overallHitsThisRound = 0;
         
         for (int i = 0; i < 3; i++)
         {
-            float originX = colBounds.min.x + m_SkinWidth + (m_RaysInterval * i);
+            float originY = colBounds.min.y + m_SkinWidth + (m_RaysInterval * i);
             
-            var numHits = Physics2D.RaycastNonAlloc(new Vector2(originX, originY), Vector2.down, m_HitsBuffer, rayDistance,m_Filter.layerMask);
+            var numHits = Physics2D.RaycastNonAlloc(new Vector2(originX, originY), Vector2.right, m_HitsBuffer, rayDistance,m_Filter.layerMask);
 
             if (numHits == 1)
             {
@@ -65,7 +65,7 @@ public class GroundThreeRays : ICollisionDetectionStrategy
             
             if (EnableDebugging)
             {
-                Debug.DrawRay(new Vector2(originX, originY), Vector2.down * rayDistance, m_HitsBuffer[0].collider != null ? Color.green : Color.red);
+                Debug.DrawRay(new Vector2(originX, originY), Vector2.right * rayDistance, m_HitsBuffer[0].collider != null ? Color.green : Color.red);
             
                 Vector2 colStart = new Vector2(colBounds.min.x, colBounds.min.y);
                 Vector2 colEnd = new Vector2(colBounds.max.x, colBounds.min.y);

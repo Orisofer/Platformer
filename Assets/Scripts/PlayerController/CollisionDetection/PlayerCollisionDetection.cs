@@ -6,7 +6,12 @@ public class PlayerCollisionDetection : ILogable
 {
     private PlayerContext m_PlayerContext;
     private Transform m_PlayerTransform;
+    
     private ICollisionDetectionStrategy m_GroundCheck;
+    private ICollisionDetectionStrategy m_RightWallCheck;
+    private ICollisionDetectionStrategy m_LeftWallCheck;
+    private ICollisionDetectionStrategy m_CeilingCheck;
+    
     private CollisionDetectionResult m_DefaultCachedResult;
     
     private bool m_EnableCollisionDetection;
@@ -38,6 +43,9 @@ public class PlayerCollisionDetection : ILogable
     private void InitializeChecks()
     {
         m_GroundCheck = new GroundThreeRays(m_PlayerContext, EnableRaysDebugging);
+        m_RightWallCheck = new WallRightThreeRays(m_PlayerContext, EnableRaysDebugging);
+        m_LeftWallCheck = new WallLeftThreeRays(m_PlayerContext, EnableRaysDebugging);
+        m_CeilingCheck = new CeilingThreeRays(m_PlayerContext, EnableRaysDebugging);
     }
 
     public ref readonly CollisionDetectionResult GroundCheck()
@@ -45,6 +53,36 @@ public class PlayerCollisionDetection : ILogable
         if (m_EnableCollisionDetection)
         {
             return ref m_GroundCheck.Calculate();
+        }
+
+        return ref m_DefaultCachedResult;
+    }
+    
+    public ref readonly CollisionDetectionResult LeftWallCheck()
+    {
+        if (m_EnableCollisionDetection)
+        {
+            return ref m_LeftWallCheck.Calculate();
+        }
+
+        return ref m_DefaultCachedResult;
+    }
+    
+    public ref readonly CollisionDetectionResult RightWallCheck()
+    {
+        if (m_EnableCollisionDetection)
+        {
+            return ref m_RightWallCheck.Calculate();
+        }
+
+        return ref m_DefaultCachedResult;
+    }
+    
+    public ref readonly CollisionDetectionResult CeilingCheck()
+    {
+        if (m_EnableCollisionDetection)
+        {
+            return ref m_CeilingCheck.Calculate();
         }
 
         return ref m_DefaultCachedResult;

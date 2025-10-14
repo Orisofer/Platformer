@@ -79,7 +79,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         StoreLastFrameState();
         HandleGroundState();
         HandleJumpState();
-        HandleHorizontalMovement();
+        HandleHorizontalState();
         HandleGravity();
         ApplyMovement();
     }
@@ -141,6 +141,16 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void HandleJumpState()
     {
+        if (m_PlayerContext.Jumping)
+        {
+            CollisionDetectionResult ceilingCheck = m_CollisionDetection.CeilingCheck();
+
+            if (ceilingCheck)
+            {
+                m_PlayerContext.ThisFrameVelocity.y = 0f;
+            }
+        }
+        
         if (!m_PlayerContext.AllowJump) return;
         if (m_PlayerContext.AvailableJumps == 0) return;
         
@@ -160,7 +170,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         m_PlayerContext.ThisFrameVelocity.y = m_PlayerControllerConfiguration.JumpPower;
     }
 
-    private void HandleHorizontalMovement()
+    private void HandleHorizontalState()
     {
         if (m_InputManager.FrameInput.Direction == Vector2.zero)
         {
@@ -183,6 +193,30 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         else
         {
             float direction = m_InputManager.FrameInput.Direction.x;
+            
+            
+            if (direction < 0)
+            {
+                CollisionDetectionResult leftWallCheck = m_CollisionDetection.LeftWallCheck();
+
+                if (leftWallCheck)
+                {
+                    m_PlayerContext.ThisFrameVelocity.x = 0f;
+                    return;
+                }
+            }
+            
+            if (direction > 0)
+            {
+                CollisionDetectionResult rightWallCheck = m_CollisionDetection.RightWallCheck();
+
+                if (rightWallCheck)
+                {
+                    m_PlayerContext.ThisFrameVelocity.x = 0f;
+                    return;
+                }
+            }
+            
             float maxHorizontalSpeed = m_PlayerControllerConfiguration.MaxSpeed * direction;
             float acceleration = m_PlayerControllerConfiguration.Acceleration;
             

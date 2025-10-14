@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GroundThreeRays : ICollisionDetectionStrategy
+public class CeilingThreeRays : ICollisionDetectionStrategy
 {
     private PlayerContext m_Ctx;
     private BoxCollider2D m_BoxCollider2D;
@@ -12,7 +12,7 @@ public class GroundThreeRays : ICollisionDetectionStrategy
     
     public bool EnableDebugging { get; set; }
     
-    public GroundThreeRays(PlayerContext cachedCollider, bool withDebugging)
+    public CeilingThreeRays(PlayerContext cachedCollider, bool withDebugging)
     {
         m_Ctx = cachedCollider;
         EnableDebugging = withDebugging;
@@ -40,8 +40,8 @@ public class GroundThreeRays : ICollisionDetectionStrategy
     public ref readonly CollisionDetectionResult Calculate()
     {
         Bounds colBounds = m_BoxCollider2D.bounds;
-        float originY = colBounds.min.y + m_SkinWidth;
-        float rayDistance = m_SkinWidth + Mathf.Max(0f, -m_Ctx.ThisFrameVelocity.y * Time.fixedDeltaTime);
+        float originY = colBounds.max.y - m_SkinWidth;
+        float rayDistance = m_SkinWidth + Mathf.Max(0f, m_Ctx.ThisFrameVelocity.y * Time.fixedDeltaTime);
         
         int hitPattern = 0b00000000;
         int overallHitsThisRound = 0;
@@ -50,7 +50,7 @@ public class GroundThreeRays : ICollisionDetectionStrategy
         {
             float originX = colBounds.min.x + m_SkinWidth + (m_RaysInterval * i);
             
-            var numHits = Physics2D.RaycastNonAlloc(new Vector2(originX, originY), Vector2.down, m_HitsBuffer, rayDistance,m_Filter.layerMask);
+            var numHits = Physics2D.RaycastNonAlloc(new Vector2(originX, originY), Vector2.up, m_HitsBuffer, rayDistance,m_Filter.layerMask);
 
             if (numHits == 1)
             {
@@ -65,7 +65,7 @@ public class GroundThreeRays : ICollisionDetectionStrategy
             
             if (EnableDebugging)
             {
-                Debug.DrawRay(new Vector2(originX, originY), Vector2.down * rayDistance, m_HitsBuffer[0].collider != null ? Color.green : Color.red);
+                Debug.DrawRay(new Vector2(originX, originY), Vector2.up * rayDistance, m_HitsBuffer[0].collider != null ? Color.green : Color.red);
             
                 Vector2 colStart = new Vector2(colBounds.min.x, colBounds.min.y);
                 Vector2 colEnd = new Vector2(colBounds.max.x, colBounds.min.y);

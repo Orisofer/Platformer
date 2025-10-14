@@ -6,7 +6,11 @@ public struct CollisionDetectionResult
     public byte HitPattern;
     public float Distance;
     public bool Collided;
-    
+
+    public static implicit operator bool(CollisionDetectionResult collisionDetectionResult)
+    {
+        return collisionDetectionResult.Collided;
+    }
     /*
      * Collision Key map:
      * -1 = only left most ray was hit
