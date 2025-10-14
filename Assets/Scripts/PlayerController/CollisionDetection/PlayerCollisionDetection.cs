@@ -4,45 +4,52 @@ using UnityEngine;
 
 public class PlayerCollisionDetection : ILogable
 {
-    private Dictionary<Type, ICollisionDetectionStrategy> m_Checks;
-    
+    private PlayerContext m_PlayerContext;
     private Transform m_PlayerTransform;
+    private ICollisionDetectionStrategy m_GroundCheck;
+    private CollisionDetectionResult m_DefaultCachedResult;
     
     private bool m_EnableCollisionDetection;
     public bool EnableLogging { get; set; }
+    public bool EnableRaysDebugging { get; set; }
     public Transform transform => m_PlayerTransform;
+    
 
-    public PlayerCollisionDetection(PlayerController playerController, bool enableLogging)
+    public PlayerCollisionDetection(PlayerController playerController, PlayerContext context, bool enableLogging, bool enableDebugging)
     {
-        m_Checks = new Dictionary<Type, ICollisionDetectionStrategy>();
-        m_EnableCollisionDetection = true;
-        EnableLogging = enableLogging;
         m_PlayerTransform = playerController.transform;
-    }
-
-    public CollisionDetectionResult Perform<T>() where T : ICollisionDetectionStrategy
-    {
-        if (m_Checks.TryGetValue(typeof(T), out ICollisionDetectionStrategy check))
-        {
-            return check.Calculate();
-        }
+        m_PlayerContext = context;
+        EnableRaysDebugging = enableDebugging;
+        EnableLogging = enableLogging;
         
-        Logger.LogError(this,
-            $"Trying to perform a collision check for type {typeof(T).Name}. No such check is allocated inside dictionary");
+        InitializeChecks();
 
-        return default;
+        m_DefaultCachedResult = new CollisionDetectionResult()
+        {
+            CollidedTransform = null,
+            HitPattern = 0,
+            Distance = 0,
+            Collided = false
+        };
+        
+        m_EnableCollisionDetection = true;
     }
 
-    public void AddCheck(ICollisionDetectionStrategy strategy)
+    private void InitializeChecks()
     {
-        m_Checks.Add(strategy.GetType(), strategy);
+        m_GroundCheck = new GroundThreeRays(m_PlayerContext, EnableRaysDebugging);
     }
 
-    public void RemoveCheck(ICollisionDetectionStrategy strategy)
+    public ref readonly CollisionDetectionResult GroundCheck()
     {
-        m_Checks.Remove(strategy.GetType());
-    }
+        if (m_EnableCollisionDetection)
+        {
+            return ref m_GroundCheck.Calculate();
+        }
 
+        return ref m_DefaultCachedResult;
+    }
+    
     public void EnableCollisionDetection(bool enable)
     {
         m_EnableCollisionDetection = enable;

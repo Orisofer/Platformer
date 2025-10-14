@@ -23,7 +23,7 @@ public class GroundOneRay : ICollisionDetectionStrategy
         m_Filter.SetLayerMask(LayerMask.GetMask("Ground"));
     }
 
-    public CollisionDetectionResult Calculate()
+    public ref readonly CollisionDetectionResult Calculate()
     {
         Bounds colBounds = m_BoxCollider2D.bounds;
         float originY = colBounds.min.y + m_SkinWidth;
@@ -55,6 +55,6 @@ public class GroundOneRay : ICollisionDetectionStrategy
             Debug.DrawRay(colStart, (colEnd - colStart) * (colBounds.size.x), Color.yellow);
         }
         
-        return m_Result;
+        return ref m_Result;
     }
 }

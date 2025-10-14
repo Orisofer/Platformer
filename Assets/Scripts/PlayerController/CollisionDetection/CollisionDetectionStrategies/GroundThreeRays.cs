@@ -45,7 +45,7 @@ public class GroundThreeRays : ICollisionDetectionStrategy
         }
     }
     
-    public CollisionDetectionResult Calculate()
+    public ref readonly CollisionDetectionResult Calculate()
     {
         Bounds colBounds = m_BoxCollider2D.bounds;
         float originY = colBounds.min.y + m_SkinWidth;
@@ -90,6 +90,6 @@ public class GroundThreeRays : ICollisionDetectionStrategy
         
         m_Result.HitPattern = (byte)hitPattern;
         
-        return m_Result;
+        return ref m_Result;
     }
 }
