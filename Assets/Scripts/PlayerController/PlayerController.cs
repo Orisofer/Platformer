@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     {
         m_CollisionDetection = new PlayerCollisionDetection(this, true);
 
-        ICollisionDetectionStrategy groundDetection = new GroundOneRay(m_PlayerContext, EnableCollisionVisualizers);
+        ICollisionDetectionStrategy groundDetection = new GroundThreeRays(m_PlayerContext, EnableCollisionVisualizers);
         
         m_CollisionDetection.AddCheck(groundDetection);
     }
@@ -95,7 +95,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void HandleGroundState()
     {
-        CollisionDetectionResult groundCheck = m_CollisionDetection.Perform<GroundOneRay>();
+        CollisionDetectionResult groundCheck = m_CollisionDetection.Perform<GroundThreeRays>();
 
         // we hit the ground
         if (!m_PlayerContext.Grounded && groundCheck.Collided)
