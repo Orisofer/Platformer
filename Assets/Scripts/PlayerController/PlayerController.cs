@@ -138,6 +138,25 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
         return false;
     }
+    
+    private bool SnapToCeiling(CollisionDetectionResult collisionResult)
+    {
+        float playerHalfSize = m_BoxCollider.bounds.extents.y;
+        float ceilingHalfSize = collisionResult.CollidedTransform.transform.localScale.y * 0.5f;
+        
+        float playerOrigin = transform.position.y + playerHalfSize;
+        float ceilingOrigin = collisionResult.CollidedTransform.transform.position.y - ceilingHalfSize;
+        
+        float actualPlayerCeilingDistance = ceilingOrigin - playerOrigin;
+
+        if (actualPlayerCeilingDistance > 0.001f)
+        {
+            transform.position = transform.position.Add(y : actualPlayerCeilingDistance);
+            return true;
+        }
+
+        return false;
+    }
 
     private void HandleJumpState()
     {
@@ -147,7 +166,10 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
             if (ceilingCheck)
             {
-                m_PlayerContext.ThisFrameVelocity.y = 0f;
+                if (SnapToCeiling(ceilingCheck))
+                {
+                    m_PlayerContext.ThisFrameVelocity.y = 0f;
+                }
             }
         }
         
@@ -193,7 +215,6 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         else
         {
             float direction = m_InputManager.FrameInput.Direction.x;
-            
             
             if (direction < 0)
             {
