@@ -43,7 +43,7 @@ public class WallRightThreeRays : ICollisionDetectionStrategy
         float originX = colBounds.max.x - m_SkinWidth;
         float rayDistance = m_SkinWidth + Mathf.Max(0f, m_Ctx.FrameVelocity.x * Time.fixedDeltaTime);
         
-        int hitPattern = 0b00000000;
+        int hitPattern = 0b10000000;
         int overallHitsThisRound = 0;
         
         for (int i = 0; i < 3; i++)
@@ -58,7 +58,7 @@ public class WallRightThreeRays : ICollisionDetectionStrategy
                 m_Result.CollidedTransform = m_HitsBuffer[0].transform;
                 m_Result.Distance = originY - m_HitsBuffer[0].point.y;
                 
-                hitPattern |= 1 << (2 - i);
+                hitPattern |= 1 << 3 + i;
 
                 overallHitsThisRound++;
             }
