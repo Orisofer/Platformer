@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class GroundThreeRays : ICollisionDetectionStrategy
 {
-    private PlayerContext m_Ctx;
-    private BoxCollider2D m_BoxCollider2D;
+    private readonly PlayerContext m_Ctx;
+    private readonly BoxCollider2D m_BoxCollider2D;
     private CollisionDetectionResult m_Result;
     private ContactFilter2D m_Filter;
     private RaycastHit2D[] m_HitsBuffer;
