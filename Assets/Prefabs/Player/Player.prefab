@@ -244,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89a8b31eada9c4056bffeeb96ee2880d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PlayerControllerConfiguration: {fileID: 11400000, guid: 09f39bc89068f4c83be6cd3087feb207, type: 2}
+  m_PlayerControllerConfiguration: {fileID: 11400000, guid: 13be94c1874ae43c8a79c3cf3cf10b78, type: 2}
   m_Rigidbody: {fileID: 809010914361207517}
   m_BoxCollider: {fileID: 347294072969194161}
   m_InputManager: {fileID: 0}
@@ -262,13 +262,13 @@ MonoBehaviour:
     PlayerLayer:
       serializedVersion: 2
       m_Bits: 0
-    ThisFrameVelocity: {x: 0, y: 0}
-    LastFrameVelocity: {x: 0, y: 0}
-    SkinWidth: 0
+    FrameVelocity: {x: 0, y: 0}
     TimeLeftTheGround: 0
+    SkinWidth: 0
+    AvailableJumps: 0
     Grounded: 0
+    AllowJump: 0
     Jumping: 0
-    HasJumpToConsume: 0
   m_PlayerLayer:
     serializedVersion: 2
     m_Bits: 2048

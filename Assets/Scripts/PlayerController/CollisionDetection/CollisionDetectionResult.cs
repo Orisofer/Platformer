@@ -12,11 +12,22 @@ public struct CollisionDetectionResult
         return collisionDetectionResult.Collided;
     }
     /*
-     * Collision Key map:
-     * -1 = only left most ray was hit
-     * -2 = left and middle was hit
-     * 3 = full hit (all 3 rays)
-     * 2 = right and middle hit
-     * 1 = only right
+     * --- Collision Key map -----
+     * 
+     * Vertical rays collisions map:
+     * 
+     * 0b00000100 = only left most ray was hit
+     * 0b00000110 = left and middle was hit
+     * 0b00000111 = full hit (all 3 rays)
+     * 0b00000011 = right and middle hit
+     * 0b00000001 = only right
+     * 
+     * Horizontal rays collisions map: (todo)
+     * 
+     * 0b00000100 = only upper ray was hit
+     * 0b00000110 = upper ray and mid ray hit
+     * 0b00000111 = full hit (all 3 rays)
+     * 0b00000011 = mid ray and lower ray was hit
+     * 0b00000001 = only lowe ray was hit
      */
 }
