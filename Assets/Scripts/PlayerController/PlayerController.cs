@@ -76,6 +76,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     public void OnFixedUpdate()
     {
         StoreLastFrameState();
+        ResetFrameContext();
         
         HandleGroundState();
         HandleHorizontalState();
@@ -83,11 +84,6 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         HandleDiagonalLand();
         HandleGravity();
         ApplyMovement();
-    }
-
-    private void StoreLastFrameState()
-    {
-        m_PlayerContext.FrameVelocity = m_Rigidbody.linearVelocity;
     }
 
     private void HandleGroundState()
@@ -98,7 +94,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         if (!m_PlayerContext.Grounded && groundCheck)
         {
             m_PlayerContext.Grounded = true;
-            m_PlayerContext.CollisionPattern = m_PlayerContext.CollisionPattern |= groundCheck.HitPattern;
+            m_PlayerContext.CollisionPattern |= groundCheck.HitPattern;
             m_PlayerContext.LastGround = groundCheck.CollidedTransform;
 
             ResetJumpParameters();
@@ -177,7 +173,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
                 if (leftWallCheck)
                 {
                     m_PlayerContext.FrameVelocity.x = 0f;
-                    m_PlayerContext.CollisionPattern = m_PlayerContext.CollisionPattern |= leftWallCheck.HitPattern;
+                    m_PlayerContext.CollisionPattern |= leftWallCheck.HitPattern;
                     
                     return;
                 }
@@ -190,7 +186,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
                 if (rightWallCheck)
                 {
                     m_PlayerContext.FrameVelocity.x = 0f;
-                    m_PlayerContext.CollisionPattern = m_PlayerContext.CollisionPattern |= rightWallCheck.HitPattern;
+                    m_PlayerContext.CollisionPattern |= rightWallCheck.HitPattern;
                     
                     return;
                 }
@@ -273,13 +269,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         
         float actualPlayerGroundDistance = playerOrigin - groundOrigin;
 
-        if (actualPlayerGroundDistance > 0.001f)
-        {
-            transform.position = transform.position.Add(y : -actualPlayerGroundDistance);
-            return true;
-        }
-        
-        if (actualPlayerGroundDistance < 0.001f)
+        if (Mathf.Abs(actualPlayerGroundDistance) > 0.001f)
         {
             transform.position = transform.position.Add(y : -actualPlayerGroundDistance);
             return true;
@@ -310,6 +300,16 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         }
 
         return false;
+    }
+    
+    private void StoreLastFrameState()
+    {
+        m_PlayerContext.FrameVelocity = m_Rigidbody.linearVelocity;
+    }
+    
+    private void ResetFrameContext()
+    {
+        m_PlayerContext.CollisionPattern = 0;
     }
 
     private void SetUpdate(bool enabled)
