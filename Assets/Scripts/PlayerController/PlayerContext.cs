@@ -5,7 +5,6 @@ public class PlayerContext
 {
     public BoxCollider2D ColliderBody;
     public Transform LastGround;
-    public FrameInput FrameInput;
     public LayerMask PlayerLayer;
     public Vector2 FrameVelocity;
     public double TimeLeftTheGround;
@@ -14,5 +13,6 @@ public class PlayerContext
     public byte CollisionPattern;
     public bool Grounded;
     public bool AllowJump;
+    public bool JumpHeld;
     public bool Jumping;
 }

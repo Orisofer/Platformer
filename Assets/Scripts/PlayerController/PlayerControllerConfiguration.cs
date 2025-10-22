@@ -27,9 +27,6 @@ public class PlayerControllerConfiguration : ScriptableObject
     [Tooltip("The player's capacity to gain fall speed. a.k.a. In Air Gravity")]
     public float FallAcceleration = 110;
 
-    [Tooltip("The gravity multiplier added when jump is released early")]
-    public float JumpEndEarlyGravityModifier = 3;
-
     [Tooltip("The time before coyote jump becomes unusable. Coyote jump allows jump to execute even after leaving a ledge")]
     public float CoyoteTime = .15f;
 
