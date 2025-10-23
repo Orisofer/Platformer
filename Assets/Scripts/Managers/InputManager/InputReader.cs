@@ -57,4 +57,11 @@ public class InputReader : ScriptableObject, IPlayerActions, IInputReader
             JumpReleased?.Invoke();
         }
     }
+
+    private void OnDisable()
+    {
+        m_InputEditor?.Player.Disable();
+        m_InputEditor?.UI.Disable();
+        m_InputEditor = null;
+    }
 }

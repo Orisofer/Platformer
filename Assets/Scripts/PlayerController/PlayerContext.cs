@@ -12,7 +12,5 @@ public class PlayerContext
     public int AvailableJumps;
     public byte CollisionPattern;
     public bool Grounded;
-    public bool AllowJump;
-    public bool JumpHeld;
     public bool Jumping;
 }

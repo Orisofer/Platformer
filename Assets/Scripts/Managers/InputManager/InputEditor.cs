@@ -725,7 +725,7 @@ public partial class @InputEditor: IInputActionCollection2, IDisposable
 
     public void Dispose()
     {
-        UnityEngine.Object.Destroy(asset);
+        UnityEngine.Object.DestroyImmediate(asset);
     }
 
     public InputBinding? bindingMask

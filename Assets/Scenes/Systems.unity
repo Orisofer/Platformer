@@ -1666,6 +1666,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1659594032}
     - target: {fileID: 6166085042707946251, guid: 3b809a4af13264ee6b8dc9a5508c3dc0, type: 3}
+      propertyPath: m_PlayerControllerConfiguration
+      value: 
+      objectReference: {fileID: 11400000, guid: 88ca9f1e980074a2fb42ecb617f62713, type: 2}
+    - target: {fileID: 6166085042707946251, guid: 3b809a4af13264ee6b8dc9a5508c3dc0, type: 3}
       propertyPath: <EnableCollisionVisualizers>k__BackingField
       value: 1
       objectReference: {fileID: 0}

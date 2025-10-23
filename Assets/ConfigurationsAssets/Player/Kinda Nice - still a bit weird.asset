@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63d839aed1072437f8c3043657e5f001, type: 3}
-  m_Name: PlayerControllerConfiguration2
+  m_Name: Kinda Nice - still a bit weird
   m_EditorClassIdentifier: 
   PlayerLayer:
     serializedVersion: 2
@@ -19,12 +19,12 @@ MonoBehaviour:
   Acceleration: 100
   GroundDeceleration: 80
   AirDeceleration: 80
-  JumpPower: 60
-  MaxJumpVelocity: 16
-  JumpStartImpulse: 6
+  JumpPower: 150
+  MaxJumpVelocity: 25
+  JumpStartImpulse: 12
   MaxJumps: 1
   TimeAtPeakWhenJumpEnds: 0.5
   MaxFallSpeed: 50
-  FallAcceleration: 40
+  FallAcceleration: 90
   CoyoteTime: 0.15
   JumpBuffer: 0.2

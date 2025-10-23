@@ -64,13 +64,28 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void UpdateJumpParameters()
     {
+        if (m_PlayerContext.Jumping && !m_InputManager.FrameInput.JumpHeld)
+        {
+            m_PlayerContext.Jumping = false;
+        }
+        
         if (m_InputManager.FrameInput.JumpPressed)
         {
-            if (m_PlayerContext.Grounded && m_PlayerContext.AvailableJumps > 0)
+            if (AllowJump())
             {
-                m_PlayerContext.AllowJump = true;
+                JumpStarted();
             }
         }
+    }
+
+    private bool AllowJump()
+    {
+        if (m_PlayerContext.Grounded || m_PlayerContext.AvailableJumps > 0)
+        {
+            return true;
+        }
+        
+        return false;
     }
 
     public void OnFixedUpdate()
@@ -83,21 +98,21 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         HandleJumpState();
         HandleDiagonalLand();
         HandleGravity();
+        
         ApplyMovement();
     }
 
     private void HandleGroundState()
     {
-        CollisionDetectionResult groundCheck = m_CollisionDetection.GroundCheck();
+        ref readonly CollisionDetectionResult groundCheck = ref m_CollisionDetection.GroundCheck();
 
         // we hit the ground
         if (!m_PlayerContext.Grounded && groundCheck)
         {
-            m_PlayerContext.Grounded = true;
+            ResetJumpParameters();
+            
             m_PlayerContext.CollisionPattern |= groundCheck.HitPattern;
             m_PlayerContext.LastGround = groundCheck.CollidedTransform;
-
-            ResetJumpParameters();
             
             if (SnapToGround(groundCheck))
             {
@@ -114,16 +129,28 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         }
     }
 
+    // player touched the ground
     private void ResetJumpParameters()
     {
-        m_PlayerContext.Jumping = false;
+        m_PlayerContext.Grounded = true;
         m_PlayerContext.TimeLeftTheGround = 0;
-        m_PlayerContext.AvailableJumps = 1;
+        m_PlayerContext.AvailableJumps = m_PlayerControllerConfiguration.MaxJumps;
     }
 
     private void HandleJumpState()
     {
+        // execute jump logic first
         if (m_PlayerContext.Jumping)
+        {
+            ExecuteJump();
+        }
+        else
+        {
+            JumpEnded();
+        }
+        
+        // reset velocity + snap if player hit the ceiling
+        if (m_PlayerContext.FrameVelocity.y > 0f)
         {
             CollisionDetectionResult ceilingCheck = m_CollisionDetection.CeilingCheck();
 
@@ -132,14 +159,47 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
                 if (SnapToCeiling(ceilingCheck))
                 {
                     m_PlayerContext.FrameVelocity.y = 0f;
+                    
+                    JumpEnded();
                 }
             }
         }
+    }
+    
+    private void ExecuteJump()
+    {
+        // give initial impulse so player will have minimum jump height
+        if (m_PlayerContext.FrameVelocity.y < m_PlayerControllerConfiguration.JumpStartImpulse)
+        {
+            m_PlayerContext.FrameVelocity.y = m_PlayerControllerConfiguration.JumpStartImpulse;
+        }
         
-        if (!m_PlayerContext.AllowJump) return;
-        if (m_PlayerContext.AvailableJumps == 0) return;
-        
-        ExecuteJump();
+        m_PlayerContext.FrameVelocity.y = Mathf.MoveTowards(
+            m_PlayerContext.FrameVelocity.y,
+            m_PlayerControllerConfiguration.MaxJumpVelocity,
+            m_PlayerControllerConfiguration.JumpPower * Time.fixedDeltaTime);
+
+        // end jump
+        if (m_PlayerContext.FrameVelocity.y >= m_PlayerControllerConfiguration.MaxJumpVelocity)
+        {
+            JumpEnded();
+        }
+    }
+
+    private void JumpStarted()
+    {
+        m_PlayerContext.Jumping = true;
+        m_PlayerContext.AvailableJumps--;
+
+        if (m_PlayerContext.AvailableJumps <= 0)
+        {
+            m_PlayerContext.AvailableJumps = 0;
+        }
+    }
+
+    private void JumpEnded()
+    {
+        m_PlayerContext.Jumping = false;
     }
 
     private void HandleHorizontalState()
@@ -223,19 +283,6 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     private void ApplyMovement()
     {
         m_Rigidbody.linearVelocity = m_PlayerContext.FrameVelocity;
-    }
-    
-    private void ExecuteJump()
-    {
-        m_PlayerContext.AvailableJumps--;
-
-        if (m_PlayerContext.AvailableJumps == 0)
-        {
-            m_PlayerContext.AllowJump = false;
-        }
-        
-        m_PlayerContext.Jumping = true;
-        m_PlayerContext.FrameVelocity.y = m_PlayerControllerConfiguration.JumpPower;
     }
     
     private void HandleDiagonalLand()

@@ -17,9 +17,23 @@ public class PlayerControllerConfiguration : ScriptableObject
 
     [Tooltip("Deceleration in air only after stopping input mid-air")]
     public float AirDeceleration = 30;
+    
+    [Header("JUMP")]
 
-    [Header("JUMP")] [Tooltip("The immediate velocity applied when jumping")]
+    [Tooltip("The over-time velocity applied when jumping")]
     public float JumpPower = 36;
+    
+    [Tooltip("Jump will end when reaching max velocity")]
+    public float MaxJumpVelocity = 11;
+    
+    [Tooltip("The immediate velocity applied when starting jumping")]
+    public float JumpStartImpulse = 4;
+    
+    [Tooltip("The maximum vertical movement speed")]
+    public int MaxJumps = 1;
+    
+    [Tooltip("when jump is canceled or ends, how much time till gravity will kick in")]
+    public float TimeAtPeakWhenJumpEnds = 0.5f;
 
     [Tooltip("The maximum vertical movement speed")]
     public float MaxFallSpeed = 40;
