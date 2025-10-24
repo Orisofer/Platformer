@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     [field: SerializeField] public bool EnableCollisionVisualizers { get; set; }
     
     private PlayerCollisionDetection m_CollisionDetection;
+
+    private float m_JumpBufferTimer;
     
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
@@ -60,11 +62,17 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     public void OnUpdate(float deltaTime)
     {
-        UpdateJumpParameters();
+        UpdateJumpParameters(deltaTime);
     }
 
-    private void UpdateJumpParameters()
+    private void UpdateJumpParameters(float deltaTime)
     {
+        // if *by design* we want to disable jump entirely to the player
+        if (m_PlayerControllerConfiguration.MaxJumps == 0)
+        {
+            return;
+        }
+        
         if (m_PlayerContext.Jumping && !m_InputManager.FrameInput.JumpHeld)
         {
             m_PlayerContext.Jumping = false;
@@ -72,15 +80,31 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         
         if (m_InputManager.FrameInput.JumpPressed)
         {
+            // jump is allowed by regular params
             if (AllowJump())
             {
                 JumpStarted();
+            }
+            // jump was pressed while player still in the air, buffer the request in a timer
+            else
+            {
+                m_JumpBufferTimer = m_PlayerControllerConfiguration.JumpBuffer;
+            }
+        }
+        else
+        {
+            // constantly decrements the buffer timer
+            m_JumpBufferTimer -= deltaTime;
+
+            if (m_JumpBufferTimer <= 0f)
+            {
+                m_JumpBufferTimer = 0f;
             }
         }
     }
 
     private bool AllowJump()
-    {
+    { 
         if (m_PlayerContext.Grounded || m_PlayerContext.AvailableJumps > 0)
         {
             return true;
@@ -140,6 +164,15 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void HandleJumpState()
     {
+        // check if jump was pressed before landed (buffer is not 0f)
+        if (m_PlayerContext.Grounded && m_JumpBufferTimer > 0f)
+        {
+            // clear the buffer
+            m_JumpBufferTimer = 0f;
+            
+            JumpStarted();
+        }
+        
         // execute jump logic first
         if (m_PlayerContext.Jumping)
         {
