@@ -58,7 +58,7 @@ public class WallLeftThreeRays : ICollisionDetectionStrategy
                 m_Result.CollidedTransform = m_HitsBuffer[0].transform;
                 m_Result.Distance = originY - m_HitsBuffer[0].point.y;
                 
-                hitPattern |= 1 << 3 + i;
+                hitPattern |= 1 << (3 + i);
 
                 overallHitsThisRound++;
             }

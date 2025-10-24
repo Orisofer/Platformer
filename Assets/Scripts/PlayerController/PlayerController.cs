@@ -152,7 +152,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         // reset velocity + snap if player hit the ceiling
         if (m_PlayerContext.FrameVelocity.y > 0f)
         {
-            CollisionDetectionResult ceilingCheck = m_CollisionDetection.CeilingCheck();
+            ref readonly CollisionDetectionResult ceilingCheck = ref m_CollisionDetection.CeilingCheck();
 
             if (ceilingCheck)
             {
@@ -228,7 +228,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             
             if (direction < 0)
             {
-                CollisionDetectionResult leftWallCheck = m_CollisionDetection.LeftWallCheck();
+                ref readonly CollisionDetectionResult leftWallCheck = ref m_CollisionDetection.LeftWallCheck();
 
                 if (leftWallCheck)
                 {
@@ -241,7 +241,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             
             if (direction > 0)
             {
-                CollisionDetectionResult rightWallCheck = m_CollisionDetection.RightWallCheck();
+                ref readonly CollisionDetectionResult rightWallCheck = ref m_CollisionDetection.RightWallCheck();
 
                 if (rightWallCheck)
                 {
