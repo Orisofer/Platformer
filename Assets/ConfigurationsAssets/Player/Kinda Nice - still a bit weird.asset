@@ -26,5 +26,5 @@ MonoBehaviour:
   TimeAtPeakWhenJumpEnds: 0.5
   MaxFallSpeed: 50
   FallAcceleration: 90
-  CoyoteTime: 0.15
-  JumpBuffer: 0.2
+  CoyoteTime: 0.1
+  JumpBuffer: 0.15
