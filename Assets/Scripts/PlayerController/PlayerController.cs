@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 {
     private const int INPUT_UPDATE_PRIORITY = -999;
+    private const float SKIN_WIDTH = 0.05f;
     
     [SerializeField] private PlayerControllerConfiguration m_PlayerControllerConfiguration;
     [SerializeField] private Rigidbody2D m_Rigidbody;
@@ -49,7 +50,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         m_PlayerContext = new PlayerContext();
         m_PlayerContext.ColliderBody = m_BoxCollider;
         m_PlayerContext.PlayerLayer = m_PlayerLayer;
-        m_PlayerContext.SkinWidth = 0.05f;
+        m_PlayerContext.SkinWidth = SKIN_WIDTH;
     }
 
     private void InitializeCollisionDetections()
@@ -163,6 +164,15 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
                     JumpEnded();
                 }
             }
+        }
+
+        if (!m_PlayerContext.Grounded && m_PlayerContext.FrameVelocity.y < 0f)
+        {
+            m_PlayerContext.Falling = true;
+        }
+        else
+        {
+            m_PlayerContext.Falling = false;
         }
     }
     

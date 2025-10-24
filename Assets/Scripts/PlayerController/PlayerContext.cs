@@ -13,4 +13,5 @@ public class PlayerContext
     public byte CollisionPattern;
     public bool Grounded;
     public bool Jumping;
+    public bool Falling;
 }
