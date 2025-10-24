@@ -104,7 +104,13 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     }
 
     private bool AllowJump()
-    { 
+    {
+        // means the player fell without jumping - let him only perform double jump if he has
+        if (m_PlayerContext.Falling && m_PlayerContext.AvailableJumps == m_PlayerControllerConfiguration.MaxJumps)
+        {
+            m_PlayerContext.AvailableJumps--;
+        }
+        
         if (m_PlayerContext.Grounded || m_PlayerContext.AvailableJumps > 0)
         {
             return true;
