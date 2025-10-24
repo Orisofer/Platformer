@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     private PlayerCollisionDetection m_CollisionDetection;
 
     private float m_JumpBufferTimer;
+    private float m_CoyoteTimer;
     
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
@@ -101,16 +102,33 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
                 m_JumpBufferTimer = 0f;
             }
         }
+
+        if (m_PlayerContext.Falling)
+        {
+            m_CoyoteTimer -= deltaTime;
+            
+            if (m_CoyoteTimer <= 0f)
+            {
+                m_CoyoteTimer = 0f;
+            }
+        }
     }
 
     private bool AllowJump()
     {
-        // means the player fell without jumping - let him only perform double jump if he has
+        // check coyote time for grace jump
+        if (m_CoyoteTimer > 0f && m_PlayerContext.AvailableJumps > 0)
+        {
+            return true;
+        }
+        
+        // the player fell without jumping - let him only perform double jump if he has
         if (m_PlayerContext.Falling && m_PlayerContext.AvailableJumps == m_PlayerControllerConfiguration.MaxJumps)
         {
             m_PlayerContext.AvailableJumps--;
         }
         
+        // normal check for when player on ground and wants to start jump
         if (m_PlayerContext.Grounded || m_PlayerContext.AvailableJumps > 0)
         {
             return true;
@@ -157,6 +175,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             m_PlayerContext.LastGround = null;
             m_PlayerContext.CollisionPattern = 0;
             m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
+            m_CoyoteTimer = m_PlayerControllerConfiguration.CoyoteTime;
         }
     }
 
