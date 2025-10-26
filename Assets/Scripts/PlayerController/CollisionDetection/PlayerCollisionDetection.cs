@@ -87,6 +87,11 @@ public class PlayerCollisionDetection : ILogable
 
         return ref m_DefaultCachedResult;
     }
+
+    public void SnapToGround()
+    {
+        
+    }
     
     public void EnableCollisionDetection(bool enable)
     {

@@ -153,6 +153,9 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void HandleGroundState()
     {
+        // stop ground detection when player is upward moving
+        if (m_PlayerContext.FrameVelocity.y > 0 || m_PlayerContext.Jumping) return;
+        
         ref readonly CollisionDetectionResult groundCheck = ref m_CollisionDetection.GroundCheck();
 
         // we hit the ground
@@ -257,6 +260,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     private void JumpStarted()
     {
         m_PlayerContext.Jumping = true;
+        m_PlayerContext.Grounded = false;
         m_PlayerContext.AvailableJumps--;
 
         if (m_PlayerContext.AvailableJumps <= 0)
