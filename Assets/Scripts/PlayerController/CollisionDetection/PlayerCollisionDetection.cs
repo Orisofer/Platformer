@@ -88,9 +88,42 @@ public class PlayerCollisionDetection : ILogable
         return ref m_DefaultCachedResult;
     }
 
-    public void SnapToGround()
+    public bool SnapToGround(BoxCollider2D collider, Transform playerContextLastGround)
     {
+        float playerHalfSize = collider.bounds.extents.y;
+        float groundHalfSize = playerContextLastGround.localScale.y * 0.5f;
         
+        float playerOrigin = transform.position.y - playerHalfSize;
+        float groundOrigin = playerContextLastGround.position.y + groundHalfSize;
+        
+        float actualPlayerGroundDistance = playerOrigin - groundOrigin;
+
+        if (Mathf.Abs(actualPlayerGroundDistance) > 0.001f)
+        {
+            transform.position = transform.position.Add(y : -actualPlayerGroundDistance);
+            return true;
+        }
+
+        return false;
+    }
+    
+    public bool SnapToCeiling(BoxCollider2D collider, Transform playerContextLastGround)
+    {
+        float playerHalfSize = collider.bounds.extents.y;
+        float ceilingHalfSize = playerContextLastGround.localScale.y * 0.5f;
+        
+        float playerOrigin = transform.position.y + playerHalfSize;
+        float ceilingOrigin = playerContextLastGround.position.y - ceilingHalfSize;
+        
+        float actualPlayerCeilingDistance = ceilingOrigin - playerOrigin;
+
+        if (actualPlayerCeilingDistance > 0.001f)
+        {
+            transform.position = transform.position.Add(y : actualPlayerCeilingDistance);
+            return true;
+        }
+
+        return false;
     }
     
     public void EnableCollisionDetection(bool enable)

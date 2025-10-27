@@ -166,7 +166,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             m_PlayerContext.CollisionPattern |= groundCheck.HitPattern;
             m_PlayerContext.LastGround = groundCheck.CollidedTransform;
             
-            if (SnapToGround(groundCheck))
+            if (m_CollisionDetection.SnapToGround(m_BoxCollider, groundCheck.CollidedTransform))
             {
                 m_PlayerContext.FrameVelocity.y = 0f;
             }
@@ -218,7 +218,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
             if (ceilingCheck)
             {
-                if (SnapToCeiling(ceilingCheck))
+                if (m_CollisionDetection.SnapToCeiling(m_BoxCollider, ceilingCheck.CollidedTransform))
                 {
                     m_PlayerContext.FrameVelocity.y = 0f;
                     
@@ -366,59 +366,16 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         {
             if (collisionPattern == CollisionDetectionResult.RightDiagonalPattern)
             {
-                SnapToGround(m_PlayerContext.LastGround);
+                m_CollisionDetection.SnapToGround(m_BoxCollider, m_PlayerContext.LastGround);
             }
         }
         else if (direction < 0)
         {
             if (collisionPattern == CollisionDetectionResult.LeftDiagonalPattern)
             {
-                SnapToGround(m_PlayerContext.LastGround);
+                m_CollisionDetection.SnapToGround(m_BoxCollider, m_PlayerContext.LastGround);
             }
         }
-    }
-
-    private bool SnapToGround(Transform playerContextLastGround)
-    {
-        float playerHalfSize = m_BoxCollider.bounds.extents.y;
-        float groundHalfSize = playerContextLastGround.localScale.y * 0.5f;
-        
-        float playerOrigin = transform.position.y - playerHalfSize;
-        float groundOrigin = playerContextLastGround.position.y + groundHalfSize;
-        
-        float actualPlayerGroundDistance = playerOrigin - groundOrigin;
-
-        if (Mathf.Abs(actualPlayerGroundDistance) > 0.001f)
-        {
-            transform.position = transform.position.Add(y : -actualPlayerGroundDistance);
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool SnapToGround(CollisionDetectionResult collisionResult)
-    {
-        return SnapToGround(collisionResult.CollidedTransform);
-    }
-    
-    private bool SnapToCeiling(CollisionDetectionResult collisionResult)
-    {
-        float playerHalfSize = m_BoxCollider.bounds.extents.y;
-        float ceilingHalfSize = collisionResult.CollidedTransform.transform.localScale.y * 0.5f;
-        
-        float playerOrigin = transform.position.y + playerHalfSize;
-        float ceilingOrigin = collisionResult.CollidedTransform.transform.position.y - ceilingHalfSize;
-        
-        float actualPlayerCeilingDistance = ceilingOrigin - playerOrigin;
-
-        if (actualPlayerCeilingDistance > 0.001f)
-        {
-            transform.position = transform.position.Add(y : actualPlayerCeilingDistance);
-            return true;
-        }
-
-        return false;
     }
     
     private void StoreLastFrameState()
