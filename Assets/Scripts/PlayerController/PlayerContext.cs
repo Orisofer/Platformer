@@ -11,6 +11,7 @@ public class PlayerContext
     public float SkinWidth;
     public int AvailableJumps;
     public byte CollisionPattern;
+    public bool FacingRight;
     public bool Grounded;
     public bool Jumping;
     public bool Falling;

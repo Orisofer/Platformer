@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 {
-    private const int INPUT_UPDATE_PRIORITY = -999;
+    private const int PLAYER_UPDATE_PRIORITY = -999;
     private const float SKIN_WIDTH = 0.05f;
     
     [SerializeField] private PlayerControllerConfiguration m_PlayerControllerConfiguration;
@@ -18,9 +19,17 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     
     private PlayerCollisionDetection m_CollisionDetection;
 
+    public event Action<PlayerContext> PlayerJumped;
+    public event Action<PlayerContext> PlayerFalling;
+    public event Action<PlayerContext> PlayerGrounded;
+
     private float m_JumpBufferTimer;
     private float m_CoyoteTimer;
+    private bool m_RaisedFallingEvent;
+    private bool m_RaisedJumpingEvent;
+    private bool m_RaisedGroundedEvent;
     
+    public PlayerContext PlayerContext => m_PlayerContext;
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
     public bool EnableUpdate { get; set; }
@@ -40,7 +49,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void InitializeUpdate()
     {
-        UpdatePriority = INPUT_UPDATE_PRIORITY;
+        UpdatePriority = PLAYER_UPDATE_PRIORITY;
         
         m_UpdateManager.AddToUpdate(this);
         m_UpdateManager.AddToFixedUpdate(this);
@@ -54,6 +63,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         m_PlayerContext.ColliderBody = m_BoxCollider;
         m_PlayerContext.PlayerLayer = m_PlayerLayer;
         m_PlayerContext.SkinWidth = SKIN_WIDTH;
+        m_PlayerContext.FacingRight = true;
     }
 
     private void InitializeCollisionDetections()
@@ -170,6 +180,8 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             {
                 m_PlayerContext.FrameVelocity.y = 0f;
             }
+            
+            PlayerGrounded?.Invoke(m_PlayerContext);
         }
         // we are no longer on the ground (fall or jump)
         else if (m_PlayerContext.Grounded && !groundCheck)
@@ -230,15 +242,35 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
         if (!m_PlayerContext.Grounded && m_PlayerContext.FrameVelocity.y < 0f)
         {
             m_PlayerContext.Falling = true;
+            
+            if (!m_RaisedFallingEvent)
+            {
+                PlayerFalling?.Invoke(m_PlayerContext);
+
+                m_RaisedFallingEvent = true;
+            }
+            
         }
         else
         {
             m_PlayerContext.Falling = false;
+
+            if (m_RaisedFallingEvent)
+            {
+                m_RaisedFallingEvent = false;
+            }
         }
     }
     
     private void ExecuteJump()
     {
+        if (!m_RaisedJumpingEvent)
+        {
+            m_RaisedJumpingEvent = true;
+            
+            PlayerJumped?.Invoke(m_PlayerContext);
+        }
+        
         // give initial impulse so player will have minimum jump height
         if (m_PlayerContext.FrameVelocity.y < m_PlayerControllerConfiguration.JumpStartImpulse)
         {
@@ -272,6 +304,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     private void JumpEnded()
     {
         m_PlayerContext.Jumping = false;
+        m_RaisedJumpingEvent = false;
     }
 
     private void HandleHorizontalState()
@@ -300,6 +333,11 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             
             if (direction < 0)
             {
+                if (m_PlayerContext.FacingRight)
+                {
+                    FlipX(false);
+                }
+                
                 ref readonly CollisionDetectionResult leftWallCheck = ref m_CollisionDetection.LeftWallCheck();
 
                 if (leftWallCheck)
@@ -313,6 +351,11 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             
             if (direction > 0)
             {
+                if (!m_PlayerContext.FacingRight)
+                {
+                    FlipX(true);
+                }
+                
                 ref readonly CollisionDetectionResult rightWallCheck = ref m_CollisionDetection.RightWallCheck();
 
                 if (rightWallCheck)
@@ -376,6 +419,22 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
                 m_CollisionDetection.SnapToGround(m_BoxCollider, m_PlayerContext.LastGround);
             }
         }
+    }
+
+    private void FlipX(bool facingRight)
+    {
+        if (facingRight)
+        {
+            Vector3 rotation = transform.rotation.eulerAngles.Replace(y: 0f);
+            transform.localRotation = Quaternion.Euler(rotation);
+        }
+        else
+        {
+            Vector3 rotation = transform.rotation.eulerAngles.Replace(y: 180f);
+            transform.localRotation = Quaternion.Euler(rotation);
+        }
+
+        m_PlayerContext.FacingRight = facingRight;
     }
     
     private void StoreLastFrameState()
