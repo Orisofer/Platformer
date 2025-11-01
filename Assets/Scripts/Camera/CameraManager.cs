@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -13,6 +15,7 @@ public class CameraManager : MonoBehaviour, ILogable
 
     private CinemachineCamera m_ActiveCamera;
     private CinemachinePositionComposer m_PositionComposer;
+    private CancellationTokenSource m_Cts;
     private float m_OriginalYDamping;
     private float m_YDampingSpeedThreshold;
     
@@ -54,34 +57,48 @@ public class CameraManager : MonoBehaviour, ILogable
 
     private void RegisterEvents()
     {
-        m_Player.PlayerJumped += OnPlayerJumped;
         m_Player.PlayerFalling += OnPlayerFalling;
         m_Player.PlayerGrounded += OnPlayerGrounded;
     }
 
     private void OnPlayerGrounded(PlayerContext playerContext)
     {
-        StopAllCoroutines();
-        StartCoroutine(ChangeYDamping(playerContext));
+        m_Cts?.Cancel();
+        m_Cts = new CancellationTokenSource();
+        
+        try
+        {
+            ChangeYDampingAsync(playerContext, m_Cts.Token).Forget();
+        }
+        catch (OperationCanceledException e)
+        {
+            Logger.Log(this, $"Camera grounded operation cancelled: {e}");
+        }
     }
 
     private void OnPlayerFalling(PlayerContext playerContext)
     {
-        StopAllCoroutines();
-        StartCoroutine(ChangeYDamping(playerContext));
+        m_Cts?.Cancel();
+        m_Cts = new CancellationTokenSource();
+        
+        try
+        {
+            ChangeYDampingAsync(playerContext, m_Cts.Token).Forget();
+        }
+        catch (OperationCanceledException e)
+        {
+            Logger.Log(this, $"Camera grounded operation cancelled: {e}");
+        }
     }
 
-    private void OnPlayerJumped(PlayerContext playerContext)
-    {
-    }
-
-    private IEnumerator ChangeYDamping(PlayerContext playerContext)
+    private async UniTask ChangeYDampingAsync(PlayerContext playerContext, CancellationToken ct)
     {
         float dampingTime = m_CameraConfiguration.DampingChangeTime;
         float startDamping = m_PositionComposer.Damping.y;
         float endDamping = 0f;
+        bool falling = playerContext.Falling;
 
-        if (playerContext.Falling)
+        if (falling)
         {
             endDamping = 0f;
         }
@@ -94,7 +111,9 @@ public class CameraManager : MonoBehaviour, ILogable
 
         while (elapsed < dampingTime)
         {
-            if (playerContext.FrameVelocity.y <= m_YDampingSpeedThreshold)
+            ct.ThrowIfCancellationRequested();
+            
+            if (!falling || (playerContext.FrameVelocity.y <= -m_YDampingSpeedThreshold))
             {
                 float lerpVal = Mathf.Lerp(startDamping, endDamping, elapsed / dampingTime);
                 elapsed += Time.deltaTime;
@@ -102,19 +121,19 @@ public class CameraManager : MonoBehaviour, ILogable
                 m_PositionComposer.Damping.y = lerpVal;
             }
             
-            yield return null;
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate, ct);
         }
     }
 
     private void InitializeSelfParams()
     {
+        m_Cts = new CancellationTokenSource();
         UpdatePriority = CAMERA_UPDATE_PRIORITY;
         m_YDampingSpeedThreshold = m_Player.PlayerConfiguration.MaxFallSpeed;
     }
     
     private void UnregisterEvents()
     {
-        m_Player.PlayerJumped -= OnPlayerJumped;
         m_Player.PlayerFalling -= OnPlayerFalling;
         m_Player.PlayerGrounded -= OnPlayerGrounded;
     }

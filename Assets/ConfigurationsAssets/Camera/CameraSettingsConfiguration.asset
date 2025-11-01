@@ -13,5 +13,4 @@ MonoBehaviour:
   m_Name: CameraSettingsConfiguration
   m_EditorClassIdentifier: 
   FallingYDampingAmount: 0
-  DampingChangeTime: 0.6
-  TimeUntillYDampingStart: 0.35
+  DampingChangeTime: 0.5
