@@ -66,14 +66,7 @@ public class CameraManager : MonoBehaviour, ILogable
         m_Cts?.Cancel();
         m_Cts = new CancellationTokenSource();
         
-        try
-        {
-            ChangeYDampingAsync(playerContext, m_Cts.Token).Forget();
-        }
-        catch (OperationCanceledException e)
-        {
-            Logger.Log(this, $"Camera grounded operation cancelled: {e}");
-        }
+        ChangeYDampingAsync(playerContext, m_Cts.Token).Forget();
     }
 
     private void OnPlayerFalling(PlayerContext playerContext)
@@ -81,14 +74,7 @@ public class CameraManager : MonoBehaviour, ILogable
         m_Cts?.Cancel();
         m_Cts = new CancellationTokenSource();
         
-        try
-        {
-            ChangeYDampingAsync(playerContext, m_Cts.Token).Forget();
-        }
-        catch (OperationCanceledException e)
-        {
-            Logger.Log(this, $"Camera grounded operation cancelled: {e}");
-        }
+        ChangeYDampingAsync(playerContext, m_Cts.Token).Forget();
     }
 
     private async UniTask ChangeYDampingAsync(PlayerContext playerContext, CancellationToken ct)
