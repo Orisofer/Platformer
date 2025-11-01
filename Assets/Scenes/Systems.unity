@@ -3261,7 +3261,7 @@ PrefabInstance:
     - target: {fileID: 6166085042707946251, guid: 3b809a4af13264ee6b8dc9a5508c3dc0, type: 3}
       propertyPath: m_PlayerControllerConfiguration
       value: 
-      objectReference: {fileID: 11400000, guid: 88ca9f1e980074a2fb42ecb617f62713, type: 2}
+      objectReference: {fileID: 11400000, guid: 1003fc78e3c9a4cd6a97f2561b50346c, type: 2}
     - target: {fileID: 6166085042707946251, guid: 3b809a4af13264ee6b8dc9a5508c3dc0, type: 3}
       propertyPath: <EnableCollisionVisualizers>k__BackingField
       value: 1
@@ -3291,6 +3291,10 @@ PrefabInstance:
       propertyPath: m_Cameras.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4461357057165268912, guid: ce538190230f3478480879bbb712a538, type: 3}
+      propertyPath: m_CameraConfiguration
+      value: 
+      objectReference: {fileID: 11400000, guid: 7853f5a2524f7404386fa256764c89d2, type: 2}
     - target: {fileID: 4461357057165268912, guid: ce538190230f3478480879bbb712a538, type: 3}
       propertyPath: 'm_Cameras.Array.data[0]'
       value: 

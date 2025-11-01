@@ -1,12 +1,19 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PlayerControllerConfiguration", menuName = "player Controller/Player Controller Configuration", order = 1)]
+[CreateAssetMenu(fileName = "PlayerControllerConfiguration", menuName = "Configuration/Player/Player Controller Configuration", order = 1)]
 public class PlayerControllerConfiguration : ScriptableObject
 {
-    [Header("LAYERS")] [Tooltip("Set this to the layer your player is on")]
+    [Header("LAYERS")]
+    
+    [Tooltip("Set this to the layer your player is on")]
     public LayerMask PlayerLayer;
+    
+    // --------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------
 
-    [Header("MOVEMENT")] [Tooltip("The top horizontal movement speed")]
+    [Header("MOVEMENT")]
+    
+    [Tooltip("The top horizontal movement speed")]
     public float MaxSpeed = 14;
 
     [Tooltip("The player's capacity to gain horizontal speed")]
@@ -18,8 +25,11 @@ public class PlayerControllerConfiguration : ScriptableObject
     [Tooltip("Deceleration in air only after stopping input mid-air")]
     public float AirDeceleration = 30;
     
+    // --------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------
+    
     [Header("JUMP")]
-
+    
     [Tooltip("The over-time velocity applied when jumping")]
     public float JumpPower = 36;
     

@@ -1,11 +1,13 @@
 using System;
+using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class CameraManager : MonoBehaviour, IUpdate, ILogable
+public class CameraManager : MonoBehaviour, ILogable
 {
     private const int CAMERA_UPDATE_PRIORITY = -998;
 
+    [SerializeField] private CameraSettingsConfiguration m_CameraConfiguration;
     [SerializeField] private CinemachineCamera[] m_Cameras;
     [SerializeField] private PlayerController m_Player;
 
@@ -14,7 +16,6 @@ public class CameraManager : MonoBehaviour, IUpdate, ILogable
     private float m_OriginalYDamping;
     
     public int UpdatePriority { get; set; }
-    public bool EnableUpdate { get; set; }
     public bool EnableLogging { get; set; }
     
     private void Start()
@@ -59,25 +60,60 @@ public class CameraManager : MonoBehaviour, IUpdate, ILogable
 
     private void OnPlayerGrounded(PlayerContext playerContext)
     {
+        StopAllCoroutines();
+        StartCoroutine(ChangeYDamping(playerContext));
     }
 
     private void OnPlayerFalling(PlayerContext playerContext)
     {
+        StopAllCoroutines();
+        StartCoroutine(ChangeYDamping(playerContext));
     }
 
     private void OnPlayerJumped(PlayerContext playerContext)
     {
     }
 
+    private IEnumerator ChangeYDamping(PlayerContext playerContext)
+    {
+        float dampingTime = m_CameraConfiguration.DampingChangeTime;
+        float startDamping = m_PositionComposer.Damping.y;
+        float endDamping = 0f;
+        float timeUntilStartDamping = 0f;
+
+        if (playerContext.Falling)
+        {
+            endDamping = 0f;
+            timeUntilStartDamping = m_CameraConfiguration.TimeUntillYDampingStart;
+        }
+        else
+        {
+            endDamping = m_OriginalYDamping;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < dampingTime)
+        {
+            if (timeUntilStartDamping <= 0f)
+            {
+                float lerpVal = Mathf.Lerp(startDamping, endDamping, elapsed / dampingTime);
+                elapsed += Time.deltaTime;
+            
+                m_PositionComposer.Damping.y = lerpVal;
+            }
+            else
+            {
+                timeUntilStartDamping -= Time.deltaTime;
+            }
+            
+            yield return null;
+        }
+    }
+
     private void InitializeSelfParams()
     {
         UpdatePriority = CAMERA_UPDATE_PRIORITY;
-        EnableUpdate = true;
-    }
-
-    public void OnUpdate(float deltaTime)
-    {
-        
     }
     
     private void UnregisterEvents()
@@ -90,7 +126,5 @@ public class CameraManager : MonoBehaviour, IUpdate, ILogable
     private void OnDisable()
     {
         UnregisterEvents();
-        
-        EnableUpdate = false;
     }
 }

@@ -198,6 +198,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     private void ResetJumpParameters()
     {
         m_PlayerContext.Grounded = true;
+        m_PlayerContext.Falling = false;
         m_PlayerContext.TimeLeftTheGround = 0;
         m_PlayerContext.AvailableJumps = m_PlayerControllerConfiguration.MaxJumps;
     }
