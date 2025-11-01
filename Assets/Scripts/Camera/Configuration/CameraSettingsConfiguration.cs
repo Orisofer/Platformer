@@ -10,9 +10,6 @@ public class CameraSettingsConfiguration : ScriptableObject
     
     [Tooltip("The Amount of time it takes for the full transition in Y Damping")]
     public float DampingChangeTime = 0.6f;
-    
-    [Tooltip("The time player is falling before the camera start changing Y Damping")]
-    public float TimeUntillYDampingStart = 0.45f;
 
     // --------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------

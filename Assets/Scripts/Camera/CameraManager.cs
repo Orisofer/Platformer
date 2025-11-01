@@ -14,6 +14,7 @@ public class CameraManager : MonoBehaviour, ILogable
     private CinemachineCamera m_ActiveCamera;
     private CinemachinePositionComposer m_PositionComposer;
     private float m_OriginalYDamping;
+    private float m_YDampingSpeedThreshold;
     
     public int UpdatePriority { get; set; }
     public bool EnableLogging { get; set; }
@@ -79,12 +80,10 @@ public class CameraManager : MonoBehaviour, ILogable
         float dampingTime = m_CameraConfiguration.DampingChangeTime;
         float startDamping = m_PositionComposer.Damping.y;
         float endDamping = 0f;
-        float timeUntilStartDamping = 0f;
 
         if (playerContext.Falling)
         {
             endDamping = 0f;
-            timeUntilStartDamping = m_CameraConfiguration.TimeUntillYDampingStart;
         }
         else
         {
@@ -95,16 +94,12 @@ public class CameraManager : MonoBehaviour, ILogable
 
         while (elapsed < dampingTime)
         {
-            if (timeUntilStartDamping <= 0f)
+            if (playerContext.FrameVelocity.y <= m_YDampingSpeedThreshold)
             {
                 float lerpVal = Mathf.Lerp(startDamping, endDamping, elapsed / dampingTime);
                 elapsed += Time.deltaTime;
             
                 m_PositionComposer.Damping.y = lerpVal;
-            }
-            else
-            {
-                timeUntilStartDamping -= Time.deltaTime;
             }
             
             yield return null;
@@ -114,6 +109,7 @@ public class CameraManager : MonoBehaviour, ILogable
     private void InitializeSelfParams()
     {
         UpdatePriority = CAMERA_UPDATE_PRIORITY;
+        m_YDampingSpeedThreshold = m_Player.PlayerConfiguration.MaxFallSpeed;
     }
     
     private void UnregisterEvents()

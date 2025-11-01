@@ -14,22 +14,21 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     [SerializeField] private PlayerContext m_PlayerContext;
     [SerializeField] private LayerMask m_PlayerLayer;
     
-    [field: SerializeField] public bool EnableLogging { get; set; }
-    [field: SerializeField] public bool EnableCollisionVisualizers { get; set; }
-    
     private PlayerCollisionDetection m_CollisionDetection;
-
-    public event Action<PlayerContext> PlayerJumped;
-    public event Action<PlayerContext> PlayerFalling;
-    public event Action<PlayerContext> PlayerGrounded;
-
+    
     private float m_JumpBufferTimer;
     private float m_CoyoteTimer;
     private bool m_RaisedFallingEvent;
     private bool m_RaisedJumpingEvent;
     private bool m_RaisedGroundedEvent;
     
+    public event Action<PlayerContext> PlayerJumped;
+    public event Action<PlayerContext> PlayerFalling;
+    public event Action<PlayerContext> PlayerGrounded;
+    public PlayerControllerConfiguration PlayerConfiguration => m_PlayerControllerConfiguration;
     public PlayerContext PlayerContext => m_PlayerContext;
+    [field: SerializeField] public bool EnableLogging { get; set; }
+    [field: SerializeField] public bool EnableCollisionVisualizers { get; set; }
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
     public bool EnableUpdate { get; set; }
