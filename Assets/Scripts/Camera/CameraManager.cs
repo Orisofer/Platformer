@@ -17,6 +17,7 @@ public class CameraManager : MonoBehaviour, ILogable
     private CinemachinePositionComposer m_PositionComposer;
     private CancellationTokenSource m_Cts;
     private float m_OriginalYDamping;
+    private float m_OriginalYOffset;
     private float m_YDampingSpeedThreshold;
     
     public int UpdatePriority { get; set; }
@@ -53,6 +54,7 @@ public class CameraManager : MonoBehaviour, ILogable
         m_PositionComposer = m_ActiveCamera.GetComponent<CinemachinePositionComposer>();
 
         m_OriginalYDamping = m_PositionComposer.Damping.y;
+        m_OriginalYOffset = m_PositionComposer.TargetOffset.y;
     }
 
     private void RegisterEvents()
@@ -67,6 +69,8 @@ public class CameraManager : MonoBehaviour, ILogable
         m_Cts = new CancellationTokenSource();
         
         ChangeYDampingAsync(playerContext, m_Cts.Token).Forget();
+        
+        
     }
 
     private void OnPlayerFalling(PlayerContext playerContext)
@@ -81,16 +85,20 @@ public class CameraManager : MonoBehaviour, ILogable
     {
         float dampingTime = m_CameraConfiguration.DampingChangeTime;
         float startDamping = m_PositionComposer.Damping.y;
+        float startOffset = m_PositionComposer.TargetOffset.y;
         float endDamping = 0f;
+        float endOffset = 0f;
         bool falling = playerContext.Falling;
 
         if (falling)
         {
-            endDamping = 0f;
+            endDamping = m_CameraConfiguration.FallingYDampingAmount;
+            endOffset = m_CameraConfiguration.FallingYOffsetAmount;
         }
         else
         {
             endDamping = m_OriginalYDamping;
+            endOffset = m_OriginalYOffset;
         }
 
         float elapsed = 0f;
@@ -101,10 +109,13 @@ public class CameraManager : MonoBehaviour, ILogable
             
             if (!falling || (playerContext.FrameVelocity.y <= -m_YDampingSpeedThreshold))
             {
-                float lerpVal = Mathf.Lerp(startDamping, endDamping, elapsed / dampingTime);
+                float dampingLerpVal = Mathf.Lerp(startDamping, endDamping, elapsed / dampingTime);
+                float offsetLerpVal = Mathf.Lerp(startOffset, endOffset, elapsed / dampingTime);
+                
+                m_PositionComposer.Damping.y = dampingLerpVal;
+                m_PositionComposer.TargetOffset.y = offsetLerpVal;
+                
                 elapsed += Time.deltaTime;
-            
-                m_PositionComposer.Damping.y = lerpVal;
             }
             
             await UniTask.Yield(PlayerLoopTiming.LastUpdate, ct);
