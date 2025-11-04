@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class GroundThreeRays : ICollisionDetectionStrategy
 {
+    private const float RAY_DISTANCE_EPSILON = 0.01f;
+    
     private readonly PlayerContext m_Ctx;
     private readonly BoxCollider2D m_BoxCollider2D;
     private CollisionDetectionResult m_Result;
@@ -41,7 +43,7 @@ public class GroundThreeRays : ICollisionDetectionStrategy
     {
         Bounds colBounds = m_BoxCollider2D.bounds;
         float originY = colBounds.min.y + m_SkinWidth;
-        float rayDistance = m_SkinWidth + Mathf.Max(0f, -m_Ctx.FrameVelocity.y * Time.fixedDeltaTime);
+        float rayDistance = m_SkinWidth + Mathf.Max(RAY_DISTANCE_EPSILON, -m_Ctx.FrameVelocity.y * Time.fixedDeltaTime);
         
         int hitPattern = 0b00000000;
         int overallHitsThisRound = 0;

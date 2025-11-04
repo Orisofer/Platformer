@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
     public event Action<PlayerContext> PlayerGrounded;
     public PlayerControllerConfiguration PlayerConfiguration => m_PlayerControllerConfiguration;
     public PlayerContext PlayerContext => m_PlayerContext;
+    public Rigidbody2D Rigidbody => m_Rigidbody;
     [field: SerializeField] public bool EnableLogging { get; set; }
     [field: SerializeField] public bool EnableCollisionVisualizers { get; set; }
     public int UpdatePriority { get; set; }
@@ -175,7 +176,7 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
             m_PlayerContext.CollisionPattern |= groundCheck.HitPattern;
             m_PlayerContext.LastGround = groundCheck.CollidedTransform;
             
-            if (m_CollisionDetection.SnapToGround(m_BoxCollider, groundCheck.CollidedTransform))
+            if (m_CollisionDetection.SnapToGround(groundCheck.Distance))
             {
                 m_PlayerContext.FrameVelocity.y = 0f;
             }

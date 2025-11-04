@@ -107,6 +107,19 @@ public class PlayerCollisionDetection : ILogable
         return false;
     }
     
+    public bool SnapToGround(float hitDistance)
+    {
+        float toSnap = hitDistance - m_PlayerContext.SkinWidth - 0.001f;
+
+        if (Mathf.Abs(toSnap) > 0.001f)
+        {
+            transform.position = transform.position.Add(y : -toSnap);
+            return true;
+        }
+
+        return false;
+    }
+    
     public bool SnapToCeiling(BoxCollider2D collider, Transform playerContextLastGround)
     {
         float playerHalfSize = collider.bounds.extents.y;
