@@ -7,6 +7,7 @@ public class PlayerContext
     public Transform LastGround;
     public LayerMask PlayerLayer;
     public Vector2 FrameVelocity;
+    public Vector2 LastFrameVelocity;
     public double TimeLeftTheGround;
     public float SkinWidth;
     public int AvailableJumps;
