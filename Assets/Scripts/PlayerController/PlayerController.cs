@@ -73,7 +73,20 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     public void OnUpdate(float deltaTime)
     {
+        UpdateWalkingParameters();
         UpdateJumpParameters(deltaTime);
+    }
+
+    private void UpdateWalkingParameters()
+    {
+        if (m_InputManager.FrameInput.Direction == Vector2.zero)
+        {
+            m_PlayerContext.Walking = false;
+        }
+        else
+        {
+            m_PlayerContext.Walking = true;
+        }
     }
 
     private void UpdateJumpParameters(float deltaTime)
@@ -310,72 +323,93 @@ public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
 
     private void HandleHorizontalState()
     {
-        if (m_InputManager.FrameInput.Direction == Vector2.zero)
+        if (!m_PlayerContext.Walking)
         {
-            float deceleration;
-
-            if (m_PlayerContext.Grounded)
-            {
-                deceleration = m_PlayerControllerConfiguration.GroundDeceleration;
-            }
-            else
-            {
-                deceleration = m_PlayerControllerConfiguration.AirDeceleration;
-            }
+            float deceleration = m_PlayerControllerConfiguration.HorizontalDeceleration;
             
             m_PlayerContext.FrameVelocity.x = Mathf.MoveTowards(
                 m_PlayerContext.FrameVelocity.x,
                 0,
                 deceleration * Time.fixedDeltaTime);
+            
+            // player decelerating
+            if (m_PlayerContext.FrameVelocity.x != 0)
+            {
+                float direction = m_InputManager.FrameInput.Direction.x;
+                
+                if (HandleHorizontalCollisions(direction))
+                {
+                    m_PlayerContext.FrameVelocity.x = 0f;
+                }
+            }
         }
         else
         {
             float direction = m_InputManager.FrameInput.Direction.x;
-            
-            if (direction < 0)
-            {
-                if (m_PlayerContext.FacingRight)
-                {
-                    FlipX(false);
-                }
-                
-                ref readonly CollisionDetectionResult leftWallCheck = ref m_CollisionDetection.LeftWallCheck();
 
-                if (leftWallCheck)
-                {
-                    m_PlayerContext.FrameVelocity.x = 0f;
-                    m_PlayerContext.CollisionPattern |= leftWallCheck.HitPattern;
-                    
-                    return;
-                }
-            }
-            
-            if (direction > 0)
+            if (HandleHorizontalCollisions(direction))
             {
-                if (!m_PlayerContext.FacingRight)
-                {
-                    FlipX(true);
-                }
-                
-                ref readonly CollisionDetectionResult rightWallCheck = ref m_CollisionDetection.RightWallCheck();
-
-                if (rightWallCheck)
-                {
-                    m_PlayerContext.FrameVelocity.x = 0f;
-                    m_PlayerContext.CollisionPattern |= rightWallCheck.HitPattern;
-                    
-                    return;
-                }
+                m_PlayerContext.FrameVelocity.x = 0f;
             }
+            else
+            {
+                float maxHorizontalSpeed = m_PlayerControllerConfiguration.MaxSpeed * direction;
+                float acceleration = m_PlayerControllerConfiguration.Acceleration;
             
-            float maxHorizontalSpeed = m_PlayerControllerConfiguration.MaxSpeed * direction;
-            float acceleration = m_PlayerControllerConfiguration.Acceleration;
-            
-            m_PlayerContext.FrameVelocity.x = Mathf.MoveTowards(
-                m_PlayerContext.FrameVelocity.x,
-                maxHorizontalSpeed,
-                acceleration * Time.fixedDeltaTime);
+                m_PlayerContext.FrameVelocity.x = Mathf.MoveTowards(
+                    m_PlayerContext.FrameVelocity.x,
+                    maxHorizontalSpeed,
+                    acceleration * Time.fixedDeltaTime);
+                
+            }
         }
+    }
+
+    private bool HandleHorizontalCollisions(float direction)
+    { 
+        // moving left
+        if (direction < 0)
+        {
+            if (m_PlayerContext.FacingRight)
+            {
+                FlipX(false);
+            }
+                
+            ref readonly CollisionDetectionResult leftWallCheck = ref m_CollisionDetection.LeftWallCheck();
+
+            if (leftWallCheck)
+            {
+                m_CollisionDetection.SnapToWall(Vector2.right, leftWallCheck.Distance);
+                    
+                m_PlayerContext.FrameVelocity.x = 0f;
+                m_PlayerContext.CollisionPattern |= leftWallCheck.HitPattern;
+                    
+                return true;
+            }
+        }
+            
+        // moving right
+        if (direction > 0)
+        {
+            if (!m_PlayerContext.FacingRight)
+            {
+                FlipX(true);
+            }
+                
+            ref readonly CollisionDetectionResult rightWallCheck = ref m_CollisionDetection.RightWallCheck();
+
+            if (rightWallCheck)
+            {
+                m_CollisionDetection.SnapToWall(Vector2.left, rightWallCheck.Distance);
+                    
+                m_PlayerContext.FrameVelocity.x = 0f;
+                m_PlayerContext.CollisionPattern |= rightWallCheck.HitPattern;
+
+                return true;
+            }
+        }
+
+        return false;
     }
     
     private void HandleGravity()

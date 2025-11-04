@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class WallRightThreeRays : ICollisionDetectionStrategy
 {
+    private const float RAY_DISTANCE_EPSILON = 0.01f;
+    
     private readonly PlayerContext m_Ctx;
     private readonly BoxCollider2D m_BoxCollider2D;
     private CollisionDetectionResult m_Result;
@@ -41,7 +43,7 @@ public class WallRightThreeRays : ICollisionDetectionStrategy
     {
         Bounds colBounds = m_BoxCollider2D.bounds;
         float originX = colBounds.max.x - m_SkinWidth;
-        float rayDistance = m_SkinWidth + Mathf.Max(0f, m_Ctx.FrameVelocity.x * Time.fixedDeltaTime);
+        float rayDistance = m_SkinWidth + Mathf.Max(RAY_DISTANCE_EPSILON, m_Ctx.FrameVelocity.x * Time.fixedDeltaTime);
         
         int hitPattern = 0b10000000;
         int overallHitsThisRound = 0;
@@ -56,7 +58,7 @@ public class WallRightThreeRays : ICollisionDetectionStrategy
             {
                 m_Result.Collided = true;
                 m_Result.CollidedTransform = m_HitsBuffer[0].transform;
-                m_Result.Distance = originY - m_HitsBuffer[0].point.y;
+                m_Result.Distance = originX - m_HitsBuffer[0].point.x;
                 
                 hitPattern |= 1 << (3 + i);
 

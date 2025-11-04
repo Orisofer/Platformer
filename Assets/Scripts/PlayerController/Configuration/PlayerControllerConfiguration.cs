@@ -20,10 +20,7 @@ public class PlayerControllerConfiguration : ScriptableObject
     public float Acceleration = 120;
 
     [Tooltip("The pace at which the player comes to a stop")]
-    public float GroundDeceleration = 60;
-
-    [Tooltip("Deceleration in air only after stopping input mid-air")]
-    public float AirDeceleration = 30;
+    public float HorizontalDeceleration = 60;
     
     // --------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------

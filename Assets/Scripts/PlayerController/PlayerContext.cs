@@ -13,6 +13,7 @@ public class PlayerContext
     public int AvailableJumps;
     public byte CollisionPattern;
     public bool FacingRight;
+    public bool Walking;
     public bool Grounded;
     public bool Jumping;
     public bool Falling;

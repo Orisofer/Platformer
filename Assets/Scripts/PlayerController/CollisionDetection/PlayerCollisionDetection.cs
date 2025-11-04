@@ -106,6 +106,21 @@ public class PlayerCollisionDetection : ILogable
 
         return false;
     }
+
+    public bool SnapToWall(Vector2 direction, float distance)
+    {
+        float toSnap = Mathf.Abs(distance) - m_PlayerContext.SkinWidth;
+        
+        toSnap *= direction == Vector2.left ? -1f : 1f;
+        
+        if (Mathf.Abs(toSnap) > 0.001f)
+        {
+            transform.position = transform.position.Add(x : -toSnap);
+            return true;
+        }
+
+        return false;
+    }
     
     public bool SnapToGround(float hitDistance)
     {
