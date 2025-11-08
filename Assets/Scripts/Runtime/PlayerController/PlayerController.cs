@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour, IUpdate, IFixedUpdate, ILogable
+public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixedUpdate, ILogable
 {
     private const int PLAYER_UPDATE_PRIORITY = -999;
     private const float SKIN_WIDTH = 0.05f;

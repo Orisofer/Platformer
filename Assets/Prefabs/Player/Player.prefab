@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 347294072969194161}
   m_Layer: 11
   m_Name: ColliderBody
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -299,7 +299,7 @@ GameObject:
   - component: {fileID: 809010914361207517}
   m_Layer: 11
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -345,10 +345,13 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     FrameVelocity: {x: 0, y: 0}
+    LastFrameVelocity: {x: 0, y: 0}
     TimeLeftTheGround: 0
     SkinWidth: 0
     AvailableJumps: 0
     CollisionPattern: 0
+    FacingRight: 0
+    Walking: 0
     Grounded: 0
     Jumping: 0
     Falling: 0

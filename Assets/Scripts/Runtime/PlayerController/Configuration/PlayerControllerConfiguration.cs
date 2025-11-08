@@ -38,9 +38,6 @@ public class PlayerControllerConfiguration : ScriptableObject
     
     [Tooltip("The maximum vertical movement speed")]
     public int MaxJumps = 1;
-    
-    [Tooltip("when jump is canceled or ends, how much time till gravity will kick in")]
-    public float TimeAtPeakWhenJumpEnds = 0.5f;
 
     [Tooltip("The maximum vertical movement speed")]
     public float MaxFallSpeed = 40;

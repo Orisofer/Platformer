@@ -17,13 +17,11 @@ MonoBehaviour:
     m_Bits: 2048
   MaxSpeed: 8
   Acceleration: 100
-  GroundDeceleration: 80
-  AirDeceleration: 80
+  HorizontalDeceleration: 60
   JumpPower: 150
   MaxJumpVelocity: 25
   JumpStartImpulse: 12
-  MaxJumps: 1
-  TimeAtPeakWhenJumpEnds: 0.5
+  MaxJumps: 2
   MaxFallSpeed: 22
   FallAcceleration: 90
   CoyoteTime: 0.1
