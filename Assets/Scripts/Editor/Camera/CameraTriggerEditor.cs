@@ -1,9 +1,7 @@
-using System;
-using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(CameraTrigger))]
+[CustomEditor(typeof(CameraTrigger)), CanEditMultipleObjects]
 public class CameraTriggerEditor : Editor
 { 
     private SerializedObject m_So;
@@ -13,6 +11,7 @@ public class CameraTriggerEditor : Editor
     private SerializedProperty sp_SwapCamera;
     private SerializedProperty sp_OnEnterCamera;
     private SerializedProperty sp_OnExitCamera;
+    private SerializedProperty sp_FlowDirection;
 
     private SerializedObject m_ConfigurationSO;
 
@@ -23,8 +22,9 @@ public class CameraTriggerEditor : Editor
         sp_Configuration = m_So.FindProperty("m_Configuration");
         sp_SwapCamera = m_So.FindProperty("SwapCameras");
         sp_PanCamera = m_So.FindProperty("PanCamera");
-        sp_OnEnterCamera = m_So.FindProperty("OnEnterCamera");
-        sp_OnExitCamera  = m_So.FindProperty("OnExitCamera");
+        sp_OnEnterCamera = m_So.FindProperty("LeftCamera");
+        sp_OnExitCamera  = m_So.FindProperty("RightCamera");
+        sp_FlowDirection = m_So.FindProperty("FlowDirection");
 
         m_ConfigurationSO = new SerializedObject(sp_Configuration.objectReferenceValue);
     }
@@ -40,8 +40,8 @@ public class CameraTriggerEditor : Editor
         {
             sp_PanCamera.boolValue = false;
             
-            EditorGUILayout.PropertyField(sp_OnEnterCamera, new GUIContent("On Enter Camera"));
-            EditorGUILayout.PropertyField(sp_OnExitCamera, new GUIContent("On Exit Camera"));
+            EditorGUILayout.PropertyField(sp_OnEnterCamera, new GUIContent("Left Camera"));
+            EditorGUILayout.PropertyField(sp_OnExitCamera, new GUIContent("Right Camera"));
         }
     
         if (sp_PanCamera.boolValue)

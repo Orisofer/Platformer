@@ -17,7 +17,6 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
     private CinemachinePositionComposer m_PositionComposer;
     private CancellationTokenSource m_CtsChangeYDamping;
     private CancellationTokenSource m_CtsPanCamera;
-    private Vector2 m_ActiveCamerasDeadZoneSize;
     private float m_OriginalYDamping;
     private float m_OriginalYOffset;
     private float m_YDampingSpeedThreshold;
@@ -88,6 +87,20 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
         PanCameraAsync(context, m_CtsPanCamera.Token).Forget();
     }
 
+    public void SwapCameras(CinemachineCamera from, CinemachineCamera to)
+    {
+        if (m_ActiveCamera != from)
+        {
+            Logger.LogError(this, $"Cannot swap camera from {from} to {to}.");
+        }
+
+        if (m_ActiveCamera != to)
+        {
+            from.enabled = false;
+            SetActiveCamera(to);
+        }
+    }
+
     private void OnPlayerGrounded(PlayerContext playerContext)
     {
         m_CtsChangeYDamping?.Cancel();
@@ -153,12 +166,7 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
 
         if (context.ResetToInitialPosition)
         {
-            m_PositionComposer.Composition.DeadZone.Size = m_ActiveCamerasDeadZoneSize;
             target = context.InitialPosition;
-        }
-        else
-        {
-            m_PositionComposer.Composition.DeadZone.Size = Vector2.zero;
         }
 
         float totalTime = context.PanTime;
@@ -181,10 +189,11 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
     private void SetActiveCamera(CinemachineCamera camera)
     {
         m_ActiveCamera = camera;
-        m_PositionComposer = m_ActiveCamera.GetComponent<CinemachinePositionComposer>();
+        m_PositionComposer = m_ActiveCamera.GetComponent<CinemachinePositionComposer>(); //todo: cache all composers of cameras in camera class object and store in dict
         m_OriginalYDamping = m_PositionComposer.Damping.y;
         m_OriginalYOffset = m_PositionComposer.TargetOffset.y;
-        m_ActiveCamerasDeadZoneSize = m_PositionComposer.Composition.DeadZone.Size;
+        
+        camera.enabled = true;
     }
 
     private void InitializeSelfParams()
