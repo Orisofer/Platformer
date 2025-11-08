@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: TriggerTest02
   m_EditorClassIdentifier: 
   PanDirection: 1
-  PanDistance: 2
-  PanSpeed: 0.4
-  PanTime: 0.1
+  PanDistance: 3
+  PanSpeed: 0.35
+  PanTime: 0.5

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Unity.Cinemachine;
@@ -9,20 +10,18 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
     private const int CAMERA_UPDATE_PRIORITY = -998;
 
     [SerializeField] private CameraSettingsConfiguration m_CameraConfiguration;
-    [SerializeField] private CinemachineCamera[] m_Cameras;
+    [SerializeField] private Transform m_CamerasHolder;
     [SerializeField] private Transform m_CameraTriggersHolder;
     [SerializeField] private PlayerController m_Player;
 
-    private CinemachineCamera m_ActiveCamera;
-    private CinemachinePositionComposer m_PositionComposer;
+    private Dictionary<CinemachineCamera, GameCamera> m_Cameras;
     private CancellationTokenSource m_CtsChangeYDamping;
     private CancellationTokenSource m_CtsPanCamera;
-    private float m_OriginalYDamping;
-    private float m_OriginalYOffset;
+    private GameCamera m_ActiveCamera;
     private float m_YDampingSpeedThreshold;
 
-    public CinemachineCamera ActiveCamera => m_ActiveCamera;
-    public CinemachinePositionComposer PositionComposer => m_PositionComposer;
+    public CinemachineCamera ActiveCamera => m_ActiveCamera.Camera;
+    public CinemachinePositionComposer PositionComposer => m_ActiveCamera.PositionComposer;
     public int UpdatePriority { get; set; }
     public bool EnableLogging { get; set; }
     
@@ -37,25 +36,6 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
         InitializeActiveCamera();
         InitializeTriggers();
         RegisterEvents();
-    }
-
-    private void InitializeActiveCamera()
-    {
-        if (m_Cameras == null || m_Cameras.Length == 0)
-        {
-            Logger.LogError(this, "No cameras in your scene.");
-            return;
-        }
-        
-        for (int i = 0; i < m_Cameras.Length; i++)
-        {
-            if (m_Cameras[i].enabled)
-            {
-                m_ActiveCamera = m_Cameras[i];
-            }
-        }
-        
-        SetActiveCamera(m_ActiveCamera);
     }
     
     private void InitializeTriggers()
@@ -89,15 +69,22 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
 
     public void SwapCameras(CinemachineCamera from, CinemachineCamera to)
     {
-        if (m_ActiveCamera != from)
+        if (m_ActiveCamera.Camera != from)
         {
             Logger.LogError(this, $"Cannot swap camera from {from} to {to}.");
         }
 
-        if (m_ActiveCamera != to)
+        if (m_ActiveCamera.Camera != to)
         {
-            from.enabled = false;
-            SetActiveCamera(to);
+            if (m_Cameras.TryGetValue(to, out GameCamera toCamera))
+            {
+                SetActiveCamera(toCamera);
+            }
+
+            if (m_Cameras.TryGetValue(from, out GameCamera fromCamera))
+            {
+                fromCamera.SetActive(false);
+            }
         }
     }
 
@@ -120,8 +107,8 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
     private async UniTask ChangeYDampingAsync(PlayerContext playerContext, CancellationToken ct)
     {
         float dampingTime = m_CameraConfiguration.DampingChangeTime;
-        float startDamping = m_PositionComposer.Damping.y;
-        float startOffset = m_PositionComposer.TargetOffset.y;
+        float startDamping = m_ActiveCamera.PositionComposer.Damping.y;
+        float startOffset = m_ActiveCamera.PositionComposer.TargetOffset.y;
         float endDamping = 0f;
         float endOffset = 0f;
         bool falling = playerContext.Falling;
@@ -133,8 +120,8 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
         }
         else
         {
-            endDamping = m_OriginalYDamping;
-            endOffset = m_OriginalYOffset;
+            endDamping = m_ActiveCamera.OriginalDamping.y;
+            endOffset = m_ActiveCamera.OriginalOffset.y;
         }
 
         float elapsed = 0f;
@@ -148,20 +135,26 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
                 float dampingLerpVal = Mathf.Lerp(startDamping, endDamping, elapsed / dampingTime);
                 float offsetLerpVal = Mathf.Lerp(startOffset, endOffset, elapsed / dampingTime);
                 
-                m_PositionComposer.Damping.y = dampingLerpVal;
-                m_PositionComposer.TargetOffset.y = offsetLerpVal;
+                m_ActiveCamera.PositionComposer.Damping.y = dampingLerpVal;
+                m_ActiveCamera.PositionComposer.TargetOffset.y = offsetLerpVal;
                 
                 elapsed += Time.deltaTime;
             }
             
             await UniTask.Yield(PlayerLoopTiming.LastUpdate, ct);
         }
+
+        if (!falling)
+        {
+            m_ActiveCamera.PositionComposer.Damping.y = endDamping;
+            m_ActiveCamera.PositionComposer.TargetOffset.y = endOffset;
+        }
     }
 
     private async UniTask PanCameraAsync(CameraPanRequest context, CancellationToken ct)
     {
         Vector2 panDirection = context.GetPanDirection();
-        Vector2 startPosition = m_PositionComposer.TargetOffset;
+        Vector2 startPosition = m_ActiveCamera.PositionComposer.TargetOffset;
         Vector2 target = context.PanDistance * panDirection;
 
         if (context.ResetToInitialPosition)
@@ -180,27 +173,58 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
             
             Vector3 offsetLerpVal = Vector3.Lerp(startPosition, target, elapsed / totalTime);
             
-            m_PositionComposer.TargetOffset = offsetLerpVal;
+            m_ActiveCamera.PositionComposer.TargetOffset = offsetLerpVal;
             
             await UniTask.Yield(PlayerLoopTiming.LastUpdate, ct);
         }
     }
 
-    private void SetActiveCamera(CinemachineCamera camera)
+    private void SetActiveCamera(GameCamera camera)
     {
         m_ActiveCamera = camera;
-        m_PositionComposer = m_ActiveCamera.GetComponent<CinemachinePositionComposer>(); //todo: cache all composers of cameras in camera class object and store in dict
-        m_OriginalYDamping = m_PositionComposer.Damping.y;
-        m_OriginalYOffset = m_PositionComposer.TargetOffset.y;
+        m_ActiveCamera.PositionComposer.TargetOffset = camera.OriginalOffset;
         
-        camera.enabled = true;
+        camera.SetActive(true);
     }
 
     private void InitializeSelfParams()
     {
+        m_Cameras = new Dictionary<CinemachineCamera, GameCamera>();
+        
         m_CtsChangeYDamping = new CancellationTokenSource();
+        m_CtsPanCamera = new CancellationTokenSource();
+        
         UpdatePriority = CAMERA_UPDATE_PRIORITY;
+        
         m_YDampingSpeedThreshold = m_Player.PlayerConfiguration.MaxFallSpeed;
+    }
+    
+    private void InitializeActiveCamera()
+    {
+        if (m_Cameras == null)
+        {
+            m_Cameras = new Dictionary<CinemachineCamera, GameCamera>();
+        }
+
+        foreach (Transform cameraTransform in m_CamerasHolder)
+        {
+            CinemachineCamera camera = cameraTransform.GetComponent<CinemachineCamera>();
+
+            if (camera == null)
+            {
+                Logger.LogError(this, $"Camera not found on game object: {cameraTransform}.");
+                continue;
+            }
+
+            GameCamera gameCamera = new GameCamera(camera);
+            
+            m_Cameras.Add(camera, gameCamera);
+
+            if (gameCamera.IsActive)
+            {
+                SetActiveCamera(gameCamera);
+            }
+        }
     }
     
     private void UnregisterEvents()
