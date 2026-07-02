@@ -50,7 +50,7 @@ public class CeilingThreeRays : ICollisionDetectionStrategy
         {
             float originX = colBounds.min.x + m_SkinWidth + (m_RaysInterval * i);
             
-            var numHits = Physics2D.RaycastNonAlloc(new Vector2(originX, originY), Vector2.up, m_HitsBuffer, rayDistance,m_Filter.layerMask);
+            int numHits = Physics2D.RaycastNonAlloc(new Vector2(originX, originY), Vector2.up, m_HitsBuffer, rayDistance,m_Filter.layerMask);
 
             if (numHits == 1)
             {
