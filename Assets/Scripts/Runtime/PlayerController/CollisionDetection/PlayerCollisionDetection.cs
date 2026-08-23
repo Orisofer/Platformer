@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerCollisionDetection : ILogable
+public class PlayerCollisionDetection
 {
     private PlayerContext m_PlayerContext;
     private Transform m_PlayerTransform;
@@ -15,17 +15,15 @@ public class PlayerCollisionDetection : ILogable
     private CollisionDetectionResult m_DefaultCachedResult;
     
     private bool m_EnableCollisionDetection;
-    public bool EnableLogging { get; set; }
     public bool EnableRaysDebugging { get; set; }
     public Transform transform => m_PlayerTransform;
     
 
-    public PlayerCollisionDetection(PlayerController playerController, PlayerContext context, bool enableLogging, bool enableDebugging)
+    public PlayerCollisionDetection(PlayerController playerController, PlayerContext context, bool enableDebugging)
     {
         m_PlayerTransform = playerController.transform;
         m_PlayerContext = context;
         EnableRaysDebugging = enableDebugging;
-        EnableLogging = enableLogging;
         
         InitializeChecks();
 

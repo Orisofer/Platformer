@@ -155,4 +155,9 @@ public class UpdateManager : MonoBehaviour
     {
         m_LateUpdateRemovePendingActors.Add(update);
     }
+    
+    public void Initialize(IServiceLocator serviceLocator)
+    {
+        // no - op //
+    }
 }

@@ -1,108 +1,136 @@
+using OriGame.Core;
 using UnityEngine;
 
-public class InputManager : MonoBehaviour, ILogable, IUpdate
+namespace OriGame.Managers
 {
-    private const int INPUT_UPDATE_PRIORITY = -1000;
-    
-    [SerializeField] private UpdateManager m_UpdateManager;
-    [SerializeField] private InputReader m_InputReader;
-        
-    [field: SerializeField] public bool EnableLogging { get; set; }
-    
-    private FrameInput m_FrameInput;
-    
-    public FrameInput FrameInput => m_FrameInput;
-
-    public int UpdatePriority { get; set; }
-    public bool EnableUpdate { get; set; }
-
-    private double m_Time;
-    
-    private void Start()
+    public class InputManager : MonoBehaviour, IUpdate
     {
-        UpdatePriority = INPUT_UPDATE_PRIORITY;
+        private const int INPUT_UPDATE_PRIORITY = -1000;
+    
+        [SerializeField] private InputReader m_InputReader;
         
-        m_UpdateManager.AddToUpdate(this);
+        private UpdateManager m_UpdateManager;
+        private IGameLogger m_GameLogger;
+        private FrameInput m_FrameInput;
+    
+        public FrameInput FrameInput => m_FrameInput;
+
+        public int UpdatePriority { get; set; }
+        public bool EnableUpdate { get; set; }
+
+        private double m_Time;
+    
+        public void Initialize(IServiceLocator serviceLocator)
+        {
+            if (!InstallServices(serviceLocator))
+            {
+                return;
+            }
             
-        m_InputReader.MoveStarted += OnMoveStarted;
-        m_InputReader.MoveEnded += OnMoveEnded;
-        m_InputReader.JumpPressed += OnJumpPressed;
-        m_InputReader.JumpReleased += OnJumpReleased;
+            UpdatePriority = INPUT_UPDATE_PRIORITY;
+        
+            m_UpdateManager.AddToUpdate(this);
             
-        m_InputReader.EnablePlayerActions();
+            m_InputReader.MoveStarted += OnMoveStarted;
+            m_InputReader.MoveEnded += OnMoveEnded;
+            m_InputReader.JumpPressed += OnJumpPressed;
+            m_InputReader.JumpReleased += OnJumpReleased;
+            
+            m_InputReader.EnablePlayerActions();
         
-        EnableUpdate = true;
-    }
+            EnableUpdate = true;
+        }
 
-    public void OnUpdate(float deltaTime)
-    {
-        m_FrameInput = new FrameInput();
+        private bool InstallServices(IServiceLocator serviceLocator)
+        {
+            m_GameLogger = serviceLocator.GetService<IGameLogger>();
 
-        InterpretFrameTime(ref m_FrameInput, deltaTime);
-        InterpretMove(ref m_FrameInput);
-        InterpretJump(ref m_FrameInput);
-    }
+            if (m_GameLogger == null)
+            {
+                return false;
+            }
+            
+            m_UpdateManager = serviceLocator.GetService<UpdateManager>();
 
-    private void InterpretFrameTime(ref FrameInput frameInput, float deltaTime)
-    {
-        m_Time += deltaTime;
-        
-        frameInput.Time = m_Time;
-    }
+            if (m_UpdateManager == null)
+            {
+                m_GameLogger.LogError($"[ Input Manager ] {nameof(UpdateManager)} could not be fetched from service locator");
+                return false;
+            }
 
-    private void InterpretJump(ref FrameInput frameInput)
-    {
-        bool jumpHeld = m_InputReader.IsJumpHeld;
-        
-        frameInput.JumpHeld = jumpHeld;
-        
-        Logger.Log(this, "Jump Pressed");
-    }
+            return true;
+        }
 
-    private void InterpretMove(ref FrameInput frameInput)
-    {
-        Vector2 dir = m_InputReader.Direction;
-        
-        frameInput.Direction = dir;
-        
-        Logger.Log(this, dir.ToString());
-    }
+        public void OnUpdate(float deltaTime)
+        {
+            m_FrameInput = new FrameInput();
 
-    private void OnMoveStarted()
-    {
-        Logger.Log(this, "OnMoveStarted");
-    }
-        
-    private void OnMoveEnded()
-    {
-        m_FrameInput.MoveFinished = true;
-        
-        Logger.Log(this, "OnMoveEnded");
-    }
+            InterpretFrameTime(ref m_FrameInput, deltaTime);
+            InterpretMove(ref m_FrameInput);
+            InterpretJump(ref m_FrameInput);
+        }
 
-    private void OnJumpPressed()
-    {
-        m_FrameInput.JumpPressed = true;
+        private void InterpretFrameTime(ref FrameInput frameInput, float deltaTime)
+        {
+            m_Time += deltaTime;
         
-        Logger.Log(this, "Jump Pressed");
-    }
+            frameInput.Time = m_Time;
+        }
 
-    private void OnJumpReleased()
-    {
-        m_FrameInput.JumpReleased = true;
+        private void InterpretJump(ref FrameInput frameInput)
+        {
+            bool jumpHeld = m_InputReader.IsJumpHeld;
         
-        Logger.Log(this, "Jump Released");
-    }
+            frameInput.JumpHeld = jumpHeld;
+        
+            m_GameLogger.Log("Jump Pressed");
+        }
+
+        private void InterpretMove(ref FrameInput frameInput)
+        {
+            Vector2 dir = m_InputReader.Direction;
+        
+            frameInput.Direction = dir;
+        
+            m_GameLogger.Log(dir.ToString());
+        }
+
+        private void OnMoveStarted()
+        {
+            m_GameLogger.Log("OnMoveStarted");
+        }
+        
+        private void OnMoveEnded()
+        {
+            m_FrameInput.MoveFinished = true;
+        
+            m_GameLogger.Log("OnMoveEnded");
+        }
+
+        private void OnJumpPressed()
+        {
+            m_FrameInput.JumpPressed = true;
+        
+            m_GameLogger.Log("Jump Pressed");
+        }
+
+        private void OnJumpReleased()
+        {
+            m_FrameInput.JumpReleased = true;
+        
+            m_GameLogger.Log("Jump Released");
+        }
     
-    private void OnDestroy()
-    {
-        EnableUpdate = false;
+        private void OnDestroy()
+        {
+            EnableUpdate = false;
         
-        m_UpdateManager.RemoveFromUpdate(this);
+            m_UpdateManager.RemoveFromUpdate(this);
             
-        m_InputReader.MoveStarted -= OnMoveStarted;
-        m_InputReader.MoveEnded -= OnMoveEnded;
-        m_InputReader.JumpPressed -= OnJumpPressed;
-        m_InputReader.JumpReleased -= OnJumpReleased;
+            m_InputReader.MoveStarted -= OnMoveStarted;
+            m_InputReader.MoveEnded -= OnMoveEnded;
+            m_InputReader.JumpPressed -= OnJumpPressed;
+            m_InputReader.JumpReleased -= OnJumpReleased;
+        }
     }
 }

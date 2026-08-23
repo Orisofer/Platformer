@@ -1,7 +1,9 @@
 using System;
+using OriGame.Core;
+using OriGame.Managers;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixedUpdate, ILogable
+public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixedUpdate
 {
     private const int PLAYER_UPDATE_PRIORITY = -999;
     private const float SKIN_WIDTH = 0.05f;
@@ -9,12 +11,13 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     [SerializeField] private PlayerControllerConfiguration m_PlayerControllerConfiguration;
     [SerializeField] private Rigidbody2D m_Rigidbody;
     [SerializeField] private BoxCollider2D m_BoxCollider;
-    [SerializeField] private InputManager m_InputManager;
-    [SerializeField] private UpdateManager m_UpdateManager;
     [SerializeField] private PlayerContext m_PlayerContext;
     [SerializeField] private LayerMask m_PlayerLayer;
     
+    private InputManager m_InputManager;
+    private UpdateManager m_UpdateManager;
     private PlayerCollisionDetection m_CollisionDetection;
+    private IGameLogger m_Logger;
     
     private float m_JumpBufferTimer;
     private float m_CoyoteTimer;
@@ -28,23 +31,43 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     public PlayerControllerConfiguration PlayerConfiguration => m_PlayerControllerConfiguration;
     public PlayerContext PlayerContext => m_PlayerContext;
     public Rigidbody2D Rigidbody => m_Rigidbody;
-    [field: SerializeField] public bool EnableLogging { get; set; }
     [field: SerializeField] public bool EnableCollisionVisualizers { get; set; }
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
     public bool EnableUpdate { get; set; }
     public bool EnableFixedUpdate { get; set; }
-    
-    private void Start()
-    {
-        Initialize();
-    }
 
-    private void Initialize()
+    public void Initialize(IServiceLocator serviceLocator)
     {
+        if (!InitializeServices(serviceLocator))
+        {
+            return;
+        }
+        
         InitializePlayerContext();
         InitializeCollisionDetections();
         InitializeUpdate();
+    }
+
+    private bool InitializeServices(IServiceLocator serviceLocator)
+    {
+        m_Logger = serviceLocator.GetService<IGameLogger>();
+        m_InputManager = serviceLocator.GetService<InputManager>();
+        m_UpdateManager  = serviceLocator.GetService<UpdateManager>();
+
+        if (m_InputManager == null)
+        {
+            m_Logger.LogError("[ Player Controller ] Input Manager could not be fetched from service locator");
+            return false;
+        }
+
+        if (m_UpdateManager == null)
+        {
+            m_Logger.LogError("[ Player Controller ] Update Manager could not be fetched from service locator");
+            return false;
+        }
+
+        return true;
     }
 
     private void InitializeUpdate()
@@ -68,7 +91,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
 
     private void InitializeCollisionDetections()
     {
-        m_CollisionDetection = new PlayerCollisionDetection(this, m_PlayerContext, EnableLogging, EnableCollisionVisualizers);
+        m_CollisionDetection = new PlayerCollisionDetection(this, m_PlayerContext, EnableCollisionVisualizers);
     }
 
     public void OnUpdate(float deltaTime)

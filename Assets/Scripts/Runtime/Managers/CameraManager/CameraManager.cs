@@ -1,48 +1,62 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using OriGame.Core;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class CameraManager : MonoBehaviour, ICameraManager, ILogable
+public class CameraManager : MonoBehaviour, ICameraManager
 {
     private const int CAMERA_UPDATE_PRIORITY = -998;
 
     [SerializeField] private CameraSettingsConfiguration m_CameraConfiguration;
     [SerializeField] private Transform m_CamerasHolder;
     [SerializeField] private Transform m_CameraTriggersHolder;
-    [SerializeField] private PlayerController m_Player;
 
     private Dictionary<CinemachineCamera, GameCamera> m_Cameras;
     private CancellationTokenSource m_CtsChangeYDamping;
     private CancellationTokenSource m_CtsPanCamera;
     private GameCamera m_ActiveCamera;
+    private PlayerController m_Player;
+    private IGameLogger m_Logger;
     private float m_YDampingSpeedThreshold;
 
     public CinemachineCamera ActiveCamera => m_ActiveCamera.Camera;
     public CinemachinePositionComposer PositionComposer => m_ActiveCamera.PositionComposer;
     public int UpdatePriority { get; set; }
     public bool EnableLogging { get; set; }
-    
-    private void Start()
-    {
-        Initialize();
-    }
 
-    private void Initialize()
+    public void Initialize(IServiceLocator serviceLocator)
     {
+        if (!InitializeServices(serviceLocator))
+        {
+            return;
+        }
+        
         InitializeSelfParams();
         InitializeActiveCamera();
         InitializeTriggers();
         RegisterEvents();
     }
-    
+
+    private bool InitializeServices(IServiceLocator serviceLocator)
+    {
+        m_Logger = serviceLocator.GetService<IGameLogger>();
+        m_Player = serviceLocator.GetService<PlayerController>();
+
+        if (m_Player == null)
+        {
+            m_Logger.LogWarning($"[ Camera Manager ] Player Controller could not be fetched from service locator");
+            return false;
+        }
+        return true;
+    }
+
     private void InitializeTriggers()
     {
         if (m_CameraTriggersHolder == null)
         {
-            Logger.LogError(this, "No camera trigger holder attached.");
+            m_Logger.LogError("[ Camera Manager ] No camera trigger holder attached.");
             return;
         }
 
@@ -71,7 +85,7 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
     {
         if (m_ActiveCamera.Camera != from)
         {
-            Logger.LogError(this, $"Cannot swap camera from {from} to {to}.");
+            m_Logger.LogError($"[ Camera Manager ] Cannot swap camera from {from} to {to}.");
         }
 
         if (m_ActiveCamera.Camera != to)
@@ -212,7 +226,7 @@ public class CameraManager : MonoBehaviour, ICameraManager, ILogable
 
             if (camera == null)
             {
-                Logger.LogError(this, $"Camera not found on game object: {cameraTransform}.");
+                m_Logger.LogError($"[ Camera Manager ] Camera not found on game object: {cameraTransform}.");
                 continue;
             }
 
