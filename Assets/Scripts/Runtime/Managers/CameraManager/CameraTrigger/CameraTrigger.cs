@@ -1,7 +1,5 @@
-using System;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(BoxCollider2D))]
 public class CameraTrigger : MonoBehaviour

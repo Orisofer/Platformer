@@ -1,3 +1,5 @@
+using OriGame.Core;
+
 public interface IUpdate : IObjectTransform
 {
     int UpdatePriority { get; set; } // smaller priority values are executed earlier

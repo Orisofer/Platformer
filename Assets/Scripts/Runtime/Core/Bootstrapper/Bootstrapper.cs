@@ -1,5 +1,3 @@
-using Cysharp.Threading.Tasks.Triggers;
-using OriGame.Managers;
 using UnityEngine;
 
 namespace OriGame.Core

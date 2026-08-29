@@ -1,10 +1,13 @@
-using UnityEngine;
 
-public interface IServiceLocator
+namespace OriGame.Core
 {
-    public bool Register<T>(T service) where T : class;
+    public interface IServiceLocator
+    {
+        public bool Register<T>(T service) where T : class;
     
-    public bool Unregister<T>(T service) where T : class;
+        public bool Unregister<T>(T service) where T : class;
     
-    public T GetService<T>() where T : class;
+        public T GetService<T>() where T : class;
+    }
 }
+

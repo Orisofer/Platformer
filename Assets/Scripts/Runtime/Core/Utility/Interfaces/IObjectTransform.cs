@@ -1,6 +1,11 @@
 using UnityEngine;
 
-public interface IObjectTransform
+namespace OriGame.Core
 {
-    public Transform transform { get; }
+    public interface IObjectTransform
+    {
+        public Transform transform { get; }
+    }
 }
+
+

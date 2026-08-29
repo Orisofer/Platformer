@@ -1,7 +1,11 @@
 using System;
 
-public class ServiceLocatorException : Exception
+namespace OriGame.Core
 {
-    public ServiceLocatorException(string message) : base(message)
-    {}
+    public class ServiceLocatorException : Exception
+    {
+        public ServiceLocatorException(string message) : base(message)
+        {}
+    }
 }
+

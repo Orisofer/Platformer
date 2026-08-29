@@ -1,4 +1,3 @@
-using Unity.Cinemachine;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CameraTriggerConfiguration", menuName = "Configuration/Camera/Camera Trigger Configuration", order = 0)]

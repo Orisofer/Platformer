@@ -1,6 +1,5 @@
 using System;
 using OriGame.Core;
-using OriGame.Managers;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixedUpdate
