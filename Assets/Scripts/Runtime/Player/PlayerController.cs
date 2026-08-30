@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     private InputManager m_InputManager;
     private UpdateManager m_UpdateManager;
     private CollisionDetection m_CollisionDetection;
+    private PlayerJump m_PlayerJump;
     private IGameLogger m_Logger;
     
     private float m_JumpBufferTimer;
@@ -46,9 +47,15 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         
         InitializePlayerContext();
         InitializeCollisionDetections();
+        InitializePlayerAbilities();
         InitializeUpdate();
         
         m_Logger.Log("[Player Controller] Initialized");
+    }
+
+    private void InitializePlayerAbilities()
+    {
+        m_PlayerJump =  new PlayerJump(this);
     }
 
     private bool InitializeServices(IServiceLocator serviceLocator)

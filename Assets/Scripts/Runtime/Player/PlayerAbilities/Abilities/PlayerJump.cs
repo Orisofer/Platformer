@@ -5,7 +5,12 @@ public class PlayerJump : PlayerAbility
     private float m_JumpBufferTimer;
     private bool m_RaisedJumpingEvent;
     private bool m_RaisedFallingEvent;
-    
+
+    public PlayerJump(PlayerController controller, bool enabled = false) : base(controller, enabled)
+    {
+        m_JumpBufferTimer = m_Config.JumpBuffer;
+    }
+
     public override void OnUpdate(float deltaTime)
     {
         // if *by design* we want to disable jump entirely to the player

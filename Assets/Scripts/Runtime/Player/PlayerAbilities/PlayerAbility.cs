@@ -10,7 +10,7 @@ public abstract class PlayerAbility
 
     public bool Enabled { get; set; } = true;
 
-    public virtual void Initialize(PlayerController controller, InputManager inputManager, bool enabled = false)
+    public PlayerAbility(PlayerController controller, bool enabled = false)
     {
         m_Controller = controller;
         m_PlayerContext = controller.PlayerContext;
