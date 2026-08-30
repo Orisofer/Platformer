@@ -8,91 +8,84 @@ public class PlayerJump : PlayerAbility
 
     public PlayerJump(PlayerController controller, bool enabled = false) : base(controller, enabled)
     {
-        m_JumpBufferTimer = m_Config.JumpBuffer;
+        m_JumpBufferTimer = 0f;
     }
 
     public override void OnUpdate(float deltaTime)
     {
-        // if *by design* we want to disable jump entirely to the player
+        // no jumps left for the player
         if (m_Config.MaxJumps == 0)
         {
             return;
         }
-        
+
+        // check if jump button released while jumping
         if (m_PlayerContext.Jumping && !m_PlayerContext.JumpHeld)
         {
             m_PlayerContext.Jumping = false;
-            
-            return;
         }
         
+        // 2. Register new jump press into buffer
         if (m_PlayerContext.JumpPressed)
         {
-            // jump is allowed by regular params
-            if (AllowJump())
-            {
-                JumpStarted();
-            }
-            // jump was pressed while player still in the air, buffer the request in a timer
-            else
-            {
-                m_JumpBufferTimer = m_Config.JumpBuffer;
-            }
+            m_JumpBufferTimer = m_Config.JumpBuffer;
         }
-        else
+        else if (m_JumpBufferTimer > 0f)
         {
-            // constantly decrements the buffer timer
             m_JumpBufferTimer -= deltaTime;
+        }
 
-            if (m_JumpBufferTimer <= 0f)
-            {
-                m_JumpBufferTimer = 0f;
-            }
-        }
-    }
-    
-    private bool AllowJump()
-    {
-        // check coyote time for grace jump
-        if (m_PlayerContext.CoyoteTime > 0f && m_PlayerContext.AvailableJumps > 0)
+        if (m_JumpBufferTimer > 0f && AllowJump())
         {
-            return true;
-        }
-        
-        // check if jump was pressed before landed (buffer is not 0f)
-        if (m_PlayerContext.Grounded && m_JumpBufferTimer > 0f)
-        {
-            // clear the buffer
             m_JumpBufferTimer = 0f;
             
-            return true;
+            JumpStarted();
         }
-        
-        // the player fell without jumping - let him only perform double jump if he has
-        if (m_PlayerContext.Falling && m_PlayerContext.AvailableJumps == m_Config.MaxJumps)
-        {
-            m_PlayerContext.AvailableJumps--;
-        }
-        
-        // normal check for when player on ground and wants to start jump
-        if (m_PlayerContext.Grounded || m_PlayerContext.AvailableJumps > 0)
+    }
+
+    private bool AllowJump()
+    {
+        // Grounded or Coyote Time available
+        if (m_PlayerContext.Grounded || m_PlayerContext.CoyoteTime > 0f)
         {
             return true;
         }
-        
+
+        if (m_PlayerContext.AvailableJumps > 0)
+        {
+            int usableJumps = m_PlayerContext.AvailableJumps;
+            
+            if (m_PlayerContext.Falling && usableJumps == m_Config.MaxJumps)
+            {
+                usableJumps--;
+            }
+
+            return usableJumps > 0;
+        }
+
         return false;
     }
     
     private void JumpStarted()
     {
         m_PlayerContext.Jumping = true;
-        m_PlayerContext.Grounded = false;
-        m_PlayerContext.AvailableJumps--;
 
+        // handle penalty if player falls from ledge
+        if (!m_PlayerContext.Grounded &&
+            m_PlayerContext.CoyoteTime <= 0f && m_PlayerContext.Falling &&
+            m_PlayerContext.AvailableJumps == m_Config.MaxJumps)
+        {
+            m_PlayerContext.AvailableJumps--;
+        }
+        
         if (m_PlayerContext.AvailableJumps <= 0)
         {
             m_PlayerContext.AvailableJumps = 0;
         }
+        
+        m_PlayerContext.Grounded = false;
+        m_PlayerContext.CoyoteTime = 0f;
+        m_PlayerContext.AvailableJumps--;
     }
 
     public override void OnFixedUpdate(float fixedDeltaTime)
@@ -115,16 +108,15 @@ public class PlayerJump : PlayerAbility
         // reset velocity + snap if player hit the ceiling
         if (m_PlayerContext.FrameVelocity.y > 0f)
         {
-            ref readonly CollisionDetectionResult ceilingCheck = ref m_CollisionDetection.CeilingCheck();
+            ref readonly var ceilingCheck = ref m_PlayerContext.CollisionContext.Ceiling;
 
             if (ceilingCheck)
             {
-                if (m_CollisionDetection.SnapToCeiling(m_BoxCollider, ceilingCheck.CollidedTransform))
-                {
-                    m_PlayerContext.FrameVelocity.y = 0f;
+                m_Controller.RequestSnap(ceilingCheck.CollidedTransform, SnapDirection.Ceiling, ceilingCheck.Distance);
+                
+                m_PlayerContext.FrameVelocity.y = 0f;
                     
-                    JumpEnded();
-                }
+                JumpEnded();
             }
         }
 
@@ -138,7 +130,6 @@ public class PlayerJump : PlayerAbility
 
                 m_RaisedFallingEvent = true;
             }
-            
         }
         else
         {

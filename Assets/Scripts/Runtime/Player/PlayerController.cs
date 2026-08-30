@@ -107,7 +107,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     {
         UpdatePlayerInput();
         UpdateWalkingParameters();
-        UpdateJumpParameters(deltaTime);
+        
+        m_PlayerJump.OnUpdate(Time.deltaTime);
+        
         UpdateCoyoteTime(deltaTime);
     }
 
@@ -143,44 +145,6 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
             m_PlayerContext.Walking = true;
         }
     }
-
-    private void UpdateJumpParameters(float deltaTime)
-    {
-        // if *by design* we want to disable jump entirely to the player
-        if (m_PlayerControllerConfiguration.MaxJumps == 0)
-        {
-            return;
-        }
-        
-        if (m_PlayerContext.Jumping && !m_InputManager.FrameInput.JumpHeld)
-        {
-            m_PlayerContext.Jumping = false;
-        }
-        
-        if (m_InputManager.FrameInput.JumpPressed)
-        {
-            // jump is allowed by regular params
-            if (AllowJump())
-            {
-                JumpStarted();
-            }
-            // jump was pressed while player still in the air, buffer the request in a timer
-            else
-            {
-                m_JumpBufferTimer = m_PlayerControllerConfiguration.JumpBuffer;
-            }
-        }
-        else
-        {
-            // constantly decrements the buffer timer
-            m_JumpBufferTimer -= deltaTime;
-
-            if (m_JumpBufferTimer <= 0f)
-            {
-                m_JumpBufferTimer = 0f;
-            }
-        }
-    }
     
     private void UpdateCoyoteTime(float deltaTime)
     {
@@ -195,37 +159,20 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         }
     }
 
-    private bool AllowJump()
-    {
-        // check coyote time for grace jump
-        if (m_PlayerContext.CoyoteTime > 0f && m_PlayerContext.AvailableJumps > 0)
-        {
-            return true;
-        }
-        
-        // the player fell without jumping - let him only perform double jump if he has
-        if (m_PlayerContext.Falling && m_PlayerContext.AvailableJumps == m_PlayerControllerConfiguration.MaxJumps)
-        {
-            m_PlayerContext.AvailableJumps--;
-        }
-        
-        // normal check for when player on ground and wants to start jump
-        if (m_PlayerContext.Grounded || m_PlayerContext.AvailableJumps > 0)
-        {
-            return true;
-        }
-        
-        return false;
-    }
-
     public void OnFixedUpdate()
     {
-        StoreLastFrameState();
+        StoreLastFrameVelocity();
         ResetFrameCollisionPattern();
+
+        UpdateCollisions();
         
         HandleGroundState();
         HandleHorizontalState();
-        HandleJumpState();
+        
+        m_PlayerJump.OnFixedUpdate(Time.fixedDeltaTime);
+
+        ApplyPendingSnap();
+        
         HandleDiagonalLand();
         HandleGravity();
         
@@ -273,110 +220,13 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         m_PlayerContext.TimeLeftTheGround = 0;
         m_PlayerContext.AvailableJumps = m_PlayerControllerConfiguration.MaxJumps;
     }
-
-    private void HandleJumpState()
-    {
-        // check if jump was pressed before landed (buffer is not 0f)
-        if (m_PlayerContext.Grounded && m_JumpBufferTimer > 0f)
-        {
-            // clear the buffer
-            m_JumpBufferTimer = 0f;
-            
-            JumpStarted();
-        }
-        
-        // execute jump logic first
-        if (m_PlayerContext.Jumping)
-        {
-            ExecuteJump();
-        }
-        else
-        {
-            JumpEnded();
-        }
-        
-        // reset velocity + snap if player hit the ceiling
-        if (m_PlayerContext.FrameVelocity.y > 0f)
-        {
-            ref readonly CollisionDetectionResult ceilingCheck = ref m_CollisionDetection.CeilingCheck();
-
-            if (ceilingCheck)
-            {
-                if (m_CollisionDetection.SnapToCeiling(m_BoxCollider, ceilingCheck.CollidedTransform))
-                {
-                    m_PlayerContext.FrameVelocity.y = 0f;
-                    
-                    JumpEnded();
-                }
-            }
-        }
-
-        if (!m_PlayerContext.Grounded && m_PlayerContext.FrameVelocity.y < 0f)
-        {
-            m_PlayerContext.Falling = true;
-            
-            if (!m_RaisedFallingEvent)
-            {
-                m_RaisedFallingEvent = true;
-                
-                PlayerFalling?.Invoke(m_PlayerContext);
-            }
-            
-        }
-        else
-        {
-            m_PlayerContext.Falling = false;
-
-            if (m_RaisedFallingEvent)
-            {
-                m_RaisedFallingEvent = false;
-            }
-        }
-    }
     
-    private void ExecuteJump()
+    private void UpdateCollisions()
     {
-        if (!m_RaisedJumpingEvent)
-        {
-            m_RaisedJumpingEvent = true;
-            
-            PlayerJumped?.Invoke(m_PlayerContext);
-        }
-        
-        // give initial impulse so player will have minimum jump height
-        if (m_PlayerContext.FrameVelocity.y < m_PlayerControllerConfiguration.JumpStartImpulse)
-        {
-            m_PlayerContext.FrameVelocity.y = m_PlayerControllerConfiguration.JumpStartImpulse;
-        }
-        
-        m_PlayerContext.FrameVelocity.y = Mathf.MoveTowards(
-            m_PlayerContext.FrameVelocity.y,
-            m_PlayerControllerConfiguration.MaxJumpVelocity,
-            m_PlayerControllerConfiguration.JumpPower * Time.fixedDeltaTime);
-
-        // end jump
-        if (m_PlayerContext.FrameVelocity.y >= m_PlayerControllerConfiguration.MaxJumpVelocity)
-        {
-            JumpEnded();
-        }
-    }
-
-    private void JumpStarted()
-    {
-        m_PlayerContext.Jumping = true;
-        m_PlayerContext.Grounded = false;
-        m_PlayerContext.AvailableJumps--;
-
-        if (m_PlayerContext.AvailableJumps <= 0)
-        {
-            m_PlayerContext.AvailableJumps = 0;
-        }
-    }
-
-    private void JumpEnded()
-    {
-        m_PlayerContext.Jumping = false;
-        m_RaisedJumpingEvent = false;
+        m_PlayerContext.CollisionContext.Ground = m_CollisionDetection.GroundCheck();
+        m_PlayerContext.CollisionContext.Ceiling = m_CollisionDetection.CeilingCheck();
+        m_PlayerContext.CollisionContext.WallLeft = m_CollisionDetection.LeftWallCheck();
+        m_PlayerContext.CollisionContext.WallRight = m_CollisionDetection.RightWallCheck();
     }
 
     private void HandleHorizontalState()
@@ -530,7 +380,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         m_PlayerContext.FacingRight = facingRight;
     }
     
-    private void StoreLastFrameState()
+    private void StoreLastFrameVelocity()
     {
         m_PlayerContext.FrameVelocity = m_Rigidbody.linearVelocity;
     }
@@ -545,6 +395,32 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         EnableUpdate = enabled;
         EnableFixedUpdate = enabled;
     }
+    
+    private void ApplyPendingSnap()
+    {
+        var snap = m_PlayerContext.SnapRequest;
+    
+        switch (snap.Direction)
+        {
+            case SnapDirection.Ground:
+                m_CollisionDetection.SnapToGround(snap.Distance);
+                break;
+
+            case SnapDirection.Ceiling:
+                m_CollisionDetection.SnapToCeiling(m_BoxCollider, snap.Target);
+                break;
+
+            case SnapDirection.WallLeft:
+                m_CollisionDetection.SnapToWall(Vector2.right, snap.Distance);
+                break;
+
+            case SnapDirection.WallRight:
+                m_CollisionDetection.SnapToWall(Vector2.left, snap.Distance);
+                break;
+        }
+        
+        m_PlayerContext.SnapRequest.Clear();
+    }
 
     public void RaisePlayerFallingEvent()
     {
@@ -554,6 +430,13 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     public void RaiseJumpEvent()
     {
         PlayerJumped?.Invoke(m_PlayerContext);
+    }
+
+    public void RequestSnap(Transform target, SnapDirection direction, float distance)
+    {
+        m_PlayerContext.SnapRequest.Target = target; 
+        m_PlayerContext.SnapRequest.Direction = direction;
+        m_PlayerContext.SnapRequest.Distance = distance;
     }
 
     private void OnDestroy()

@@ -5,8 +5,6 @@ public abstract class PlayerAbility
     protected PlayerController m_Controller;
     protected PlayerContext m_PlayerContext;
     protected PlayerControllerConfiguration m_Config;
-    protected CollisionDetection m_CollisionDetection;
-    protected BoxCollider2D m_BoxCollider;
 
     public bool Enabled { get; set; } = true;
 
@@ -15,8 +13,6 @@ public abstract class PlayerAbility
         m_Controller = controller;
         m_PlayerContext = controller.PlayerContext;
         m_Config = controller.PlayerConfiguration;
-        m_CollisionDetection = controller.CollisionDetection;
-        m_BoxCollider = controller.BoxCollider;
         
         Enabled  = enabled;
     }
