@@ -90,15 +90,15 @@ public class PlayerJump : PlayerAbility
 
     public override void OnFixedUpdate(float fixedDeltaTime)
     {
-        HandleJumpPhysics();
+        HandleJumpPhysics(fixedDeltaTime);
     }
     
-    private void HandleJumpPhysics()
+    private void HandleJumpPhysics(float fixedDeltaTime)
     {
         // execute jump logic first
         if (m_PlayerContext.Jumping)
         {
-            ExecuteJump();
+            ExecuteJump(fixedDeltaTime);
         }
         else
         {
@@ -142,7 +142,7 @@ public class PlayerJump : PlayerAbility
         }
     }
     
-    private void ExecuteJump()
+    private void ExecuteJump(float fixedDeltaTime)
     {
         if (!m_RaisedJumpingEvent)
         {
@@ -160,7 +160,7 @@ public class PlayerJump : PlayerAbility
         m_PlayerContext.FrameVelocity.y = Mathf.MoveTowards(
             m_PlayerContext.FrameVelocity.y,
             m_Config.MaxJumpVelocity,
-            m_Config.JumpPower * Time.fixedDeltaTime);
+            m_Config.JumpPower * fixedDeltaTime);
 
         // end jump
         if (m_PlayerContext.FrameVelocity.y >= m_Config.MaxJumpVelocity)

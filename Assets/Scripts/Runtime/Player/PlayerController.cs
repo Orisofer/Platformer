@@ -170,11 +170,11 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         HandleHorizontalState();
         
         m_PlayerJump.OnFixedUpdate(Time.fixedDeltaTime);
-
-        ApplyPendingSnap();
         
         HandleDiagonalLand();
         HandleGravity();
+        
+        ApplyPendingSnap();
         
         ApplyMovement();
     }
