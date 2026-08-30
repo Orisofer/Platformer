@@ -1,7 +1,7 @@
 using OriGame.Core;
 using UnityEngine;
 
-public class PlayerCollisionDetection
+public class CollisionDetection
 {
     private PlayerContext m_PlayerContext;
     private Transform m_PlayerTransform;
@@ -18,7 +18,7 @@ public class PlayerCollisionDetection
     public Transform transform => m_PlayerTransform;
     
 
-    public PlayerCollisionDetection(PlayerController playerController, PlayerContext context, bool enableDebugging)
+    public CollisionDetection(PlayerController playerController, PlayerContext context, bool enableDebugging)
     {
         m_PlayerTransform = playerController.transform;
         m_PlayerContext = context;

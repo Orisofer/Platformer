@@ -7,6 +7,7 @@ public class InputManager : MonoBehaviour, IUpdate
     private const int INPUT_UPDATE_PRIORITY = -1000;
     
     [SerializeField] private InputReader m_InputReader;
+    [SerializeField] private bool m_DebugLog;
         
     private UpdateManager m_UpdateManager;
     private IGameLogger m_GameLogger;
@@ -81,8 +82,6 @@ public class InputManager : MonoBehaviour, IUpdate
         bool jumpHeld = m_InputReader.IsJumpHeld;
         
         frameInput.JumpHeld = jumpHeld;
-        
-        m_GameLogger.Log("Jump Pressed");
     }
 
     private void InterpretMove(ref FrameInput frameInput)
@@ -90,34 +89,40 @@ public class InputManager : MonoBehaviour, IUpdate
         Vector2 dir = m_InputReader.Direction;
         
         frameInput.Direction = dir;
-        
-        m_GameLogger.Log(dir.ToString());
     }
 
     private void OnMoveStarted()
     {
-        m_GameLogger.Log("OnMoveStarted");
+        DebugLogs("OnMoveStarted");
     }
         
     private void OnMoveEnded()
     {
         m_FrameInput.MoveFinished = true;
         
-        m_GameLogger.Log("OnMoveEnded");
+        DebugLogs("OnMoveEnded");
     }
 
     private void OnJumpPressed()
     {
         m_FrameInput.JumpPressed = true;
         
-        m_GameLogger.Log("Jump Pressed");
+        DebugLogs("Jump Pressed");
     }
 
     private void OnJumpReleased()
     {
         m_FrameInput.JumpReleased = true;
         
-        m_GameLogger.Log("Jump Released");
+        DebugLogs("Jump Released");
+    }
+
+    private void DebugLogs(string message)
+    {
+        if (m_DebugLog)
+        {
+            m_GameLogger.Log(message);
+        }
     }
     
     private void OnDestroy()

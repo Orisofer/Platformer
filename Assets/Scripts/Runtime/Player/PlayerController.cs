@@ -15,11 +15,10 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     
     private InputManager m_InputManager;
     private UpdateManager m_UpdateManager;
-    private PlayerCollisionDetection m_CollisionDetection;
+    private CollisionDetection m_CollisionDetection;
     private IGameLogger m_Logger;
     
     private float m_JumpBufferTimer;
-    private float m_CoyoteTimer;
     private bool m_RaisedFallingEvent;
     private bool m_RaisedJumpingEvent;
     private bool m_RaisedGroundedEvent;
@@ -29,7 +28,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     public event Action<PlayerContext> PlayerGrounded;
     public PlayerControllerConfiguration PlayerConfiguration => m_PlayerControllerConfiguration;
     public PlayerContext PlayerContext => m_PlayerContext;
+    public CollisionDetection CollisionDetection => m_CollisionDetection;
     public Rigidbody2D Rigidbody => m_Rigidbody;
+    public BoxCollider2D BoxCollider => m_BoxCollider;
     [field: SerializeField] public bool EnableCollisionVisualizers { get; set; }
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
@@ -46,6 +47,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         InitializePlayerContext();
         InitializeCollisionDetections();
         InitializeUpdate();
+        
+        m_Logger.Log("[Player Controller] Initialized");
     }
 
     private bool InitializeServices(IServiceLocator serviceLocator)
@@ -90,13 +93,36 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
 
     private void InitializeCollisionDetections()
     {
-        m_CollisionDetection = new PlayerCollisionDetection(this, m_PlayerContext, EnableCollisionVisualizers);
+        m_CollisionDetection = new CollisionDetection(this, m_PlayerContext, EnableCollisionVisualizers);
     }
 
     public void OnUpdate(float deltaTime)
     {
+        UpdatePlayerInput();
         UpdateWalkingParameters();
         UpdateJumpParameters(deltaTime);
+        UpdateCoyoteTime(deltaTime);
+    }
+
+    private void UpdatePlayerInput()
+    {
+        if (m_InputManager.FrameInput.JumpPressed)
+        {
+            m_PlayerContext.JumpPressed = true;
+        }
+        else
+        {
+            m_PlayerContext.JumpPressed = false;
+        }
+
+        if (m_InputManager.FrameInput.JumpHeld)
+        {
+            m_PlayerContext.JumpHeld = true;
+        }
+        else
+        {
+            m_PlayerContext.JumpHeld = false;
+        }
     }
 
     private void UpdateWalkingParameters()
@@ -147,14 +173,17 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
                 m_JumpBufferTimer = 0f;
             }
         }
-
+    }
+    
+    private void UpdateCoyoteTime(float deltaTime)
+    {
         if (m_PlayerContext.Falling)
         {
-            m_CoyoteTimer -= deltaTime;
+            m_PlayerContext.CoyoteTime -= deltaTime;
             
-            if (m_CoyoteTimer <= 0f)
+            if (m_PlayerContext.CoyoteTime <= 0f)
             {
-                m_CoyoteTimer = 0f;
+                m_PlayerContext.CoyoteTime = 0f;
             }
         }
     }
@@ -162,7 +191,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     private bool AllowJump()
     {
         // check coyote time for grace jump
-        if (m_CoyoteTimer > 0f && m_PlayerContext.AvailableJumps > 0)
+        if (m_PlayerContext.CoyoteTime > 0f && m_PlayerContext.AvailableJumps > 0)
         {
             return true;
         }
@@ -185,7 +214,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     public void OnFixedUpdate()
     {
         StoreLastFrameState();
-        ResetFrameContext();
+        ResetFrameCollisionPattern();
         
         HandleGroundState();
         HandleHorizontalState();
@@ -225,7 +254,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
             m_PlayerContext.LastGround = null;
             m_PlayerContext.CollisionPattern = 0;
             m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
-            m_CoyoteTimer = m_PlayerControllerConfiguration.CoyoteTime;
+            m_PlayerContext.CoyoteTime = m_PlayerControllerConfiguration.CoyoteTime;
         }
     }
 
@@ -281,9 +310,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
             
             if (!m_RaisedFallingEvent)
             {
-                PlayerFalling?.Invoke(m_PlayerContext);
-
                 m_RaisedFallingEvent = true;
+                
+                PlayerFalling?.Invoke(m_PlayerContext);
             }
             
         }
@@ -499,7 +528,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         m_PlayerContext.FrameVelocity = m_Rigidbody.linearVelocity;
     }
     
-    private void ResetFrameContext()
+    private void ResetFrameCollisionPattern()
     {
         m_PlayerContext.CollisionPattern = 0;
     }
@@ -508,6 +537,16 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     {
         EnableUpdate = enabled;
         EnableFixedUpdate = enabled;
+    }
+
+    public void RaisePlayerFallingEvent()
+    {
+        PlayerFalling?.Invoke(m_PlayerContext);
+    }
+
+    public void RaiseJumpEvent()
+    {
+        PlayerJumped?.Invoke(m_PlayerContext);
     }
 
     private void OnDestroy()

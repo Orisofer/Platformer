@@ -6,6 +6,11 @@ namespace OriGame.Core
     {
         public bool Enabled { get; set; }
 
+        public UnityGameLogger()
+        {
+            Enabled = true;
+        }
+
         public void Log(string message)
         {
             if (Enabled)

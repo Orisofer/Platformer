@@ -6,8 +6,8 @@ public struct CollisionDetectionResult
     public static readonly byte LeftDiagonalPattern = 0b00001100;
     
     public Transform CollidedTransform;
-    public byte HitPattern;
     public float Distance;
+    public byte HitPattern;
     public bool Collided;
 
     public static implicit operator bool(CollisionDetectionResult collisionDetectionResult)
