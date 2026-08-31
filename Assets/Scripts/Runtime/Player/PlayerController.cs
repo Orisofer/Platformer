@@ -16,22 +16,19 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     private InputManager m_InputManager;
     private UpdateManager m_UpdateManager;
     private CollisionDetection m_CollisionDetection;
-    private PlayerJump m_PlayerJump;
     private IGameLogger m_Logger;
     
-    private float m_JumpBufferTimer;
-    private bool m_RaisedFallingEvent;
-    private bool m_RaisedJumpingEvent;
-    private bool m_RaisedGroundedEvent;
+    // Abilities
+    // ----------------
+    private PlayerJump m_PlayerJump;
+    private PlayerHorizontalMove m_PlayerHorizontalMove;
+    
     
     public event Action<PlayerContext> PlayerJumped;
     public event Action<PlayerContext> PlayerFalling;
     public event Action<PlayerContext> PlayerGrounded;
     public PlayerControllerConfiguration PlayerConfiguration => m_PlayerControllerConfiguration;
     public PlayerContext PlayerContext => m_PlayerContext;
-    public CollisionDetection CollisionDetection => m_CollisionDetection;
-    public Rigidbody2D Rigidbody => m_Rigidbody;
-    public BoxCollider2D BoxCollider => m_BoxCollider;
     [field: SerializeField] public bool EnableCollisionVisualizers { get; set; }
     public int UpdatePriority { get; set; }
     public int FixedUpdatePriority { get; set; }
@@ -55,6 +52,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
 
     private void InitializePlayerAbilities()
     {
+        m_PlayerHorizontalMove = new PlayerHorizontalMove(this);
         m_PlayerJump =  new PlayerJump(this);
     }
 
@@ -106,9 +104,9 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
     public void OnUpdate(float deltaTime)
     {
         UpdatePlayerInput();
-        UpdateWalkingParameters();
         
-        m_PlayerJump.OnUpdate(Time.deltaTime);
+        m_PlayerHorizontalMove.OnUpdate(deltaTime);
+        m_PlayerJump.OnUpdate(deltaTime);
         
         UpdateCoyoteTime(deltaTime);
     }
@@ -132,18 +130,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         {
             m_PlayerContext.JumpHeld = false;
         }
-    }
 
-    private void UpdateWalkingParameters()
-    {
-        if (m_InputManager.FrameInput.Direction == Vector2.zero)
-        {
-            m_PlayerContext.Walking = false;
-        }
-        else
-        {
-            m_PlayerContext.Walking = true;
-        }
+        m_PlayerContext.HorizontalInputDir = m_InputManager.FrameInput.Direction;
     }
     
     private void UpdateCoyoteTime(float deltaTime)
@@ -167,8 +155,8 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         UpdateCollisions();
         
         HandleGroundState();
-        HandleHorizontalState();
         
+        m_PlayerHorizontalMove.OnFixedUpdate(Time.fixedDeltaTime);
         m_PlayerJump.OnFixedUpdate(Time.fixedDeltaTime);
         
         HandleDiagonalLand();
@@ -228,97 +216,6 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         m_PlayerContext.CollisionContext.WallLeft = m_CollisionDetection.LeftWallCheck();
         m_PlayerContext.CollisionContext.WallRight = m_CollisionDetection.RightWallCheck();
     }
-
-    private void HandleHorizontalState()
-    {
-        if (!m_PlayerContext.Walking)
-        {
-            float deceleration = m_PlayerControllerConfiguration.HorizontalDeceleration;
-            
-            m_PlayerContext.FrameVelocity.x = Mathf.MoveTowards(
-                m_PlayerContext.FrameVelocity.x,
-                0,
-                deceleration * Time.fixedDeltaTime);
-            
-            // player decelerating
-            if (m_PlayerContext.FrameVelocity.x != 0)
-            {
-                float direction = m_InputManager.FrameInput.Direction.x;
-                
-                if (HandleHorizontalCollisions(direction))
-                {
-                    m_PlayerContext.FrameVelocity.x = 0f;
-                }
-            }
-        }
-        else
-        {
-            float direction = m_InputManager.FrameInput.Direction.x;
-
-            if (HandleHorizontalCollisions(direction))
-            {
-                m_PlayerContext.FrameVelocity.x = 0f;
-            }
-            else
-            {
-                float maxHorizontalSpeed = m_PlayerControllerConfiguration.MaxSpeed * direction;
-                float acceleration = m_PlayerControllerConfiguration.Acceleration;
-            
-                m_PlayerContext.FrameVelocity.x = Mathf.MoveTowards(
-                    m_PlayerContext.FrameVelocity.x,
-                    maxHorizontalSpeed,
-                    acceleration * Time.fixedDeltaTime);
-                
-            }
-        }
-    }
-
-    private bool HandleHorizontalCollisions(float direction)
-    { 
-        // moving left
-        if (direction < 0)
-        {
-            if (m_PlayerContext.FacingRight)
-            {
-                FlipX(false);
-            }
-                
-            ref readonly CollisionDetectionResult leftWallCheck = ref m_CollisionDetection.LeftWallCheck();
-
-            if (leftWallCheck)
-            {
-                m_CollisionDetection.SnapToWall(Vector2.right, leftWallCheck.Distance);
-                    
-                m_PlayerContext.FrameVelocity.x = 0f;
-                m_PlayerContext.CollisionPattern |= leftWallCheck.HitPattern;
-                    
-                return true;
-            }
-        }
-            
-        // moving right
-        if (direction > 0)
-        {
-            if (!m_PlayerContext.FacingRight)
-            {
-                FlipX(true);
-            }
-                
-            ref readonly CollisionDetectionResult rightWallCheck = ref m_CollisionDetection.RightWallCheck();
-
-            if (rightWallCheck)
-            {
-                m_CollisionDetection.SnapToWall(Vector2.left, rightWallCheck.Distance);
-                    
-                m_PlayerContext.FrameVelocity.x = 0f;
-                m_PlayerContext.CollisionPattern |= rightWallCheck.HitPattern;
-
-                return true;
-            }
-        }
-
-        return false;
-    }
     
     private void HandleGravity()
     {
@@ -364,7 +261,7 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         }
     }
 
-    private void FlipX(bool facingRight)
+    public void FlipX(bool facingRight)
     {
         if (facingRight)
         {
@@ -390,10 +287,10 @@ public class PlayerController : MonoBehaviour, IPlayerController, IUpdate, IFixe
         m_PlayerContext.CollisionPattern = 0;
     }
 
-    private void SetUpdate(bool enabled)
+    private void SetUpdate(bool updateEnabled)
     {
-        EnableUpdate = enabled;
-        EnableFixedUpdate = enabled;
+        EnableUpdate = updateEnabled;
+        EnableFixedUpdate = updateEnabled;
     }
     
     private void ApplyPendingSnap()

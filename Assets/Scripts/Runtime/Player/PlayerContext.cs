@@ -10,6 +10,7 @@ public class PlayerContext
     public LayerMask PlayerLayer;
     public Vector2 FrameVelocity;
     public Vector2 LastFrameVelocity;
+    public Vector2 HorizontalInputDir;
     public double TimeLeftTheGround;
     public float SkinWidth;
     public float CoyoteTime;
