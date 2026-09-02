@@ -1,22 +1,26 @@
 using UnityEngine;
 
-public abstract class PlayerAbility
+namespace OriGame.Player
 {
-    protected PlayerController m_Controller;
-    protected PlayerContext m_PlayerContext;
-    protected PlayerControllerConfiguration m_Config;
-
-    public bool Enabled { get; set; } = true;
-
-    public PlayerAbility(PlayerController controller, bool enabled = false)
+    public abstract class PlayerAbility
     {
-        m_Controller = controller;
-        m_PlayerContext = controller.PlayerContext;
-        m_Config = controller.PlayerConfiguration;
-        
-        Enabled  = enabled;
-    }
+        protected PlayerController m_Controller;
+        protected PlayerContext m_PlayerContext;
+        protected PlayerControllerConfiguration m_Config;
 
-    public abstract void OnUpdate(float deltaTime);
-    public abstract void OnFixedUpdate(float fixedDeltaTime);
+        public bool Enabled { get; set; } = true;
+
+        protected PlayerAbility(PlayerController controller, bool enabled = false)
+        {
+            m_Controller = controller;
+            m_PlayerContext = controller.PlayerContext;
+            m_Config = controller.PlayerConfiguration;
+        
+            Enabled  = enabled;
+        }
+
+        public abstract void OnUpdate(float deltaTime);
+        public abstract void OnFixedUpdate(float fixedDeltaTime);
+    }
 }
+    

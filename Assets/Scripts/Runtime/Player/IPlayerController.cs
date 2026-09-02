@@ -1,7 +1,11 @@
 using System;
 
-public interface IPlayerController
+namespace OriGame.Player
 {
-    public PlayerControllerConfiguration PlayerConfiguration { get; }
-    public event Action<PlayerContext> PlayerGrounded;
+    public interface IPlayerController
+    {
+        public PlayerControllerConfiguration PlayerConfiguration { get; }
+        public event Action<PlayerContext> PlayerGrounded;
+    }
 }
+    

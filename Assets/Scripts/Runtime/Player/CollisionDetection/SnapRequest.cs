@@ -1,15 +1,20 @@
 using UnityEngine;
 
-public struct SnapRequest
+namespace OriGame.Player
 {
-    public Transform Target;
-    public SnapDirection Direction;
-    public float Distance;
-
-    public void Clear()
+    public struct SnapRequest
     {
-        Target = null;
-        Direction = SnapDirection.None;
-        Distance = 0f;
+        public Transform Target;
+        public SnapDirection Direction;
+        public float Distance;
+
+        public void Clear()
+        {
+            Target = null;
+            Direction = SnapDirection.None;
+            Distance = 0f;
+        }
     }
 }
+    
+

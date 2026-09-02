@@ -1,158 +1,142 @@
 using OriGame.Core;
 using UnityEngine;
 
-public class CollisionDetection
+namespace OriGame.Player
 {
-    private PlayerContext m_PlayerContext;
-    private Transform m_PlayerTransform;
-    
-    private ICollisionDetectionStrategy m_GroundCheck;
-    private ICollisionDetectionStrategy m_RightWallCheck;
-    private ICollisionDetectionStrategy m_LeftWallCheck;
-    private ICollisionDetectionStrategy m_CeilingCheck;
-    
-    private CollisionDetectionResult m_DefaultCachedResult;
-    
-    private bool m_EnableCollisionDetection;
-    public bool EnableRaysDebugging { get; set; }
-    public Transform transform => m_PlayerTransform;
-    
-
-    public CollisionDetection(PlayerController playerController, PlayerContext context, bool enableDebugging)
+    public class CollisionDetection
     {
-        m_PlayerTransform = playerController.transform;
-        m_PlayerContext = context;
-        EnableRaysDebugging = enableDebugging;
-        
-        InitializeChecks();
+        private PlayerContext m_PlayerContext;
+        private Transform m_PlayerTransform;
+    
+        private ICollisionDetectionStrategy m_GroundCheck;
+        private ICollisionDetectionStrategy m_RightWallCheck;
+        private ICollisionDetectionStrategy m_LeftWallCheck;
+        private ICollisionDetectionStrategy m_CeilingCheck;
+    
+        private CollisionDetectionResult m_DefaultCachedResult;
+    
+        private bool m_EnableCollisionDetection;
+        public bool EnableRaysDebugging { get; set; }
+        public Transform transform => m_PlayerTransform;
+    
 
-        m_DefaultCachedResult = new CollisionDetectionResult()
+        public CollisionDetection(PlayerController playerController, PlayerContext context, bool enableDebugging)
         {
-            CollidedTransform = null,
-            HitPattern = 0,
-            Distance = 0,
-            Collided = false
-        };
+            m_PlayerTransform = playerController.transform;
+            m_PlayerContext = context;
+            EnableRaysDebugging = enableDebugging;
         
-        m_EnableCollisionDetection = true;
-    }
+            InitializeChecks();
 
-    private void InitializeChecks()
-    {
-        m_GroundCheck = new GroundThreeRays(m_PlayerContext, EnableRaysDebugging);
-        m_RightWallCheck = new WallRightThreeRays(m_PlayerContext, EnableRaysDebugging);
-        m_LeftWallCheck = new WallLeftThreeRays(m_PlayerContext, EnableRaysDebugging);
-        m_CeilingCheck = new CeilingThreeRays(m_PlayerContext, EnableRaysDebugging);
-    }
-
-    public ref readonly CollisionDetectionResult GroundCheck()
-    {
-        if (m_EnableCollisionDetection)
-        {
-            return ref m_GroundCheck.Calculate();
+            m_DefaultCachedResult = new CollisionDetectionResult()
+            {
+                CollidedTransform = null,
+                HitPattern = 0,
+                Distance = 0,
+                Collided = false
+            };
+        
+            m_EnableCollisionDetection = true;
         }
 
-        return ref m_DefaultCachedResult;
-    }
+        private void InitializeChecks()
+        {
+            m_GroundCheck = new GroundThreeRays(m_PlayerContext, EnableRaysDebugging);
+            m_RightWallCheck = new WallRightThreeRays(m_PlayerContext, EnableRaysDebugging);
+            m_LeftWallCheck = new WallLeftThreeRays(m_PlayerContext, EnableRaysDebugging);
+            m_CeilingCheck = new CeilingThreeRays(m_PlayerContext, EnableRaysDebugging);
+        }
+
+        public ref readonly CollisionDetectionResult GroundCheck()
+        {
+            if (m_EnableCollisionDetection)
+            {
+                return ref m_GroundCheck.Calculate();
+            }
+
+            return ref m_DefaultCachedResult;
+        }
     
-    public ref readonly CollisionDetectionResult LeftWallCheck()
-    {
-        if (m_EnableCollisionDetection)
+        public ref readonly CollisionDetectionResult LeftWallCheck()
         {
-            return ref m_LeftWallCheck.Calculate();
-        }
+            if (m_EnableCollisionDetection)
+            {
+                return ref m_LeftWallCheck.Calculate();
+            }
 
-        return ref m_DefaultCachedResult;
-    }
+            return ref m_DefaultCachedResult;
+        }
     
-    public ref readonly CollisionDetectionResult RightWallCheck()
-    {
-        if (m_EnableCollisionDetection)
+        public ref readonly CollisionDetectionResult RightWallCheck()
         {
-            return ref m_RightWallCheck.Calculate();
-        }
+            if (m_EnableCollisionDetection)
+            {
+                return ref m_RightWallCheck.Calculate();
+            }
 
-        return ref m_DefaultCachedResult;
-    }
+            return ref m_DefaultCachedResult;
+        }
     
-    public ref readonly CollisionDetectionResult CeilingCheck()
-    {
-        if (m_EnableCollisionDetection)
+        public ref readonly CollisionDetectionResult CeilingCheck()
         {
-            return ref m_CeilingCheck.Calculate();
+            if (m_EnableCollisionDetection)
+            {
+                return ref m_CeilingCheck.Calculate();
+            }
+
+            return ref m_DefaultCachedResult;
         }
-
-        return ref m_DefaultCachedResult;
-    }
-
-    public bool SnapToGround(BoxCollider2D collider, Transform playerContextLastGround)
-    {
-        float playerHalfSize = collider.bounds.extents.y;
-        float groundHalfSize = playerContextLastGround.localScale.y * 0.5f;
-        
-        float playerOrigin = transform.position.y - playerHalfSize;
-        float groundOrigin = playerContextLastGround.position.y + groundHalfSize;
-        
-        float actualPlayerGroundDistance = playerOrigin - groundOrigin;
-
-        if (Mathf.Abs(actualPlayerGroundDistance) > 0.001f)
-        {
-            transform.position = transform.position.Add(y : -actualPlayerGroundDistance);
-            return true;
-        }
-
-        return false;
-    }
-
-    public bool SnapToWall(Vector2 direction, float distance)
-    {
-        float toSnap = Mathf.Abs(distance) - m_PlayerContext.SkinWidth;
-        
-        toSnap *= direction == Vector2.left ? -1f : 1f;
-        
-        if (Mathf.Abs(toSnap) > 0.001f)
-        {
-            transform.position = transform.position.Add(x : -toSnap);
-            return true;
-        }
-
-        return false;
-    }
     
-    public bool SnapToGround(float hitDistance)
-    {
-        float toSnap = hitDistance - m_PlayerContext.SkinWidth - 0.001f;
-
-        if (Mathf.Abs(toSnap) > 0.001f)
+        public bool SnapToGround(float hitDistance)
         {
-            transform.position = transform.position.Add(y : -toSnap);
-            return true;
+            float toSnap = hitDistance - m_PlayerContext.SkinWidth - 0.001f;
+
+            if (Mathf.Abs(toSnap) > 0.001f)
+            {
+                transform.position = transform.position.Add(y : -toSnap);
+                return true;
+            }
+
+            return false;
         }
 
-        return false;
-    }
-    
-    public bool SnapToCeiling(BoxCollider2D collider, Transform playerContextLastGround)
-    {
-        float playerHalfSize = collider.bounds.extents.y;
-        float ceilingHalfSize = playerContextLastGround.localScale.y * 0.5f;
-        
-        float playerOrigin = transform.position.y + playerHalfSize;
-        float ceilingOrigin = playerContextLastGround.position.y - ceilingHalfSize;
-        
-        float actualPlayerCeilingDistance = ceilingOrigin - playerOrigin;
-
-        if (actualPlayerCeilingDistance > 0.001f)
+        public bool SnapToWall(Vector2 direction, float distance)
         {
-            transform.position = transform.position.Add(y : actualPlayerCeilingDistance);
-            return true;
-        }
+            float toSnap = Mathf.Abs(distance) - m_PlayerContext.SkinWidth;
+        
+            toSnap *= direction == Vector2.left ? -1f : 1f;
+        
+            if (Mathf.Abs(toSnap) > 0.001f)
+            {
+                transform.position = transform.position.Add(x : -toSnap);
+                return true;
+            }
 
-        return false;
-    }
+            return false;
+        }
     
-    public void EnableCollisionDetection(bool enable)
-    {
-        m_EnableCollisionDetection = enable;
+        public bool SnapToCeiling(BoxCollider2D collider, Transform playerContextLastGround)
+        {
+            float playerHalfSize = collider.bounds.extents.y;
+            float ceilingHalfSize = playerContextLastGround.localScale.y * 0.5f;
+        
+            float playerOrigin = transform.position.y + playerHalfSize;
+            float ceilingOrigin = playerContextLastGround.position.y - ceilingHalfSize;
+        
+            float actualPlayerCeilingDistance = ceilingOrigin - playerOrigin;
+
+            if (actualPlayerCeilingDistance > 0.001f)
+            {
+                transform.position = transform.position.Add(y : actualPlayerCeilingDistance);
+                return true;
+            }
+
+            return false;
+        }
+    
+        public void EnableCollisionDetection(bool enable)
+        {
+            m_EnableCollisionDetection = enable;
+        }
     }
 }

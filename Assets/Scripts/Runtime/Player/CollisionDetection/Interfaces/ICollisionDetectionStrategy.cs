@@ -1,7 +1,11 @@
 using UnityEngine;
 
-public interface ICollisionDetectionStrategy
+namespace OriGame.Player
 {
-    public bool EnableDebugging { get; set; }
-    public ref readonly CollisionDetectionResult Calculate();
+    public interface ICollisionDetectionStrategy
+    {
+        public bool EnableDebugging { get; set; }
+        public ref readonly CollisionDetectionResult Calculate();
+    }
 }
+

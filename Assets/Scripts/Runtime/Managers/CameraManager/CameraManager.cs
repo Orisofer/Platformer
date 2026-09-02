@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using OriGame.Core;
+using OriGame.Player;
 using Unity.Cinemachine;
 using UnityEngine;
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using OriGame.Player;
 
 namespace OriGame.Core
 {

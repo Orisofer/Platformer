@@ -1,8 +1,13 @@
-public enum SnapDirection
+namespace OriGame.Player
 {
-    None,
-    Ground,
-    Ceiling,
-    WallLeft,
-    WallRight
+    public enum SnapDirection
+    {
+        None,
+        Ground,
+        Ceiling,
+        WallLeft,
+        WallRight
+    } 
 }
+    
+

@@ -60,7 +60,7 @@ public class UpdateManager : MonoBehaviour
         {
             if (m_FixedUpdateActors[i].EnableFixedUpdate)
             {
-                m_FixedUpdateActors[i].OnFixedUpdate();
+                m_FixedUpdateActors[i].OnFixedUpdate(Time.fixedDeltaTime);
             }
         }
         
