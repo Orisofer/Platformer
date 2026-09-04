@@ -42,10 +42,6 @@ namespace OriGame.Player
                     m_HoldTimer = m_Config.MaxJumpHoldTime;
                 }
             }
-            else
-            {
-                m_HoldTimer = 0f;
-            }
         }
 
         public override PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime)
@@ -69,6 +65,7 @@ namespace OriGame.Player
         private void StartJump(ref Vector2 requestedVelocity)
         {
             m_JumpBufferTimer = 0f;
+            m_HoldTimer = 0f;
             m_PlayerContext.Jumping = true;
 
             // Deduct jump charge (with penalty handling if slipping off ledges)
@@ -81,11 +78,9 @@ namespace OriGame.Player
             }
             
             m_PlayerContext.AvailableJumps--;
-            m_PlayerContext.Grounded = false;
             m_PlayerContext.Falling = false;
             m_PlayerContext.CoyoteTime = 0f;
             
-            m_HoldTimer = m_Config.MaxJumpHoldTime;
             requestedVelocity.y = m_Config.JumpStartImpulse;
 
             m_Controller.RaiseJumpEvent();
@@ -93,7 +88,7 @@ namespace OriGame.Player
 
         private void ProcessJumpHold(float fixedDeltaTime, ref Vector2 requestedVelocity)
         {
-            if (m_PlayerContext.JumpHeld && m_HoldTimer > 0f)
+            if (m_PlayerContext.JumpHeld && m_HoldTimer < m_Config.MaxJumpHoldTime)
             {
                 // Add upward hold acceleration to current velocity
                 float holdAcceleration = m_Config.HoldAcceleration;
@@ -103,8 +98,10 @@ namespace OriGame.Player
                     m_Config.MaxJumpVelocity,
                     holdAcceleration * fixedDeltaTime);
             }
-            else
+            else if (!m_PlayerContext.JumpHeld || m_HoldTimer >= m_Config.MaxJumpHoldTime)
             {
+                requestedVelocity.y = 0f;
+                
                 m_PlayerContext.Jumping = false;
             }
         }
