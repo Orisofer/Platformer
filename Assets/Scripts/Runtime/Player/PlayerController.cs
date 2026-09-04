@@ -197,19 +197,40 @@ namespace OriGame.Player
             m_PlayerContext.CollisionPattern |= m_PlayerContext.CollisionContext.WallLeft.HitPattern;
             m_PlayerContext.CollisionPattern |= m_PlayerContext.CollisionContext.WallRight.HitPattern;
 
+            // Ground Snap
+            if (!m_PlayerContext.Grounded && m_PlayerContext.CollisionContext.Ground && !m_PlayerContext.Jumping)
+            {
+                RequestSnap(m_PlayerContext.CollisionContext.Ground.CollidedTransform, SnapDirection.Ground, m_PlayerContext.CollisionContext.Ground.Distance);
+                newFrameVelocity.y = 0f;
+            }
+
+            // Ceiling Snap
+            if (m_PlayerContext.CollisionContext.Ceiling && newFrameVelocity.y > 0f)
+            {
+                RequestSnap(m_PlayerContext.CollisionContext.Ceiling.CollidedTransform, SnapDirection.Ceiling, m_PlayerContext.CollisionContext.Ceiling.Distance);
+                newFrameVelocity.y = 0f;
+            }
+
+            // Wall Snaps
+            if (m_PlayerContext.CurrentVelocity.x != 0)
+            {
+                float currentPlayerDir = Mathf.Sign(m_PlayerContext.CurrentVelocity.x);
+                if (HorizontalCollision(currentPlayerDir))
+                {
+                    newFrameVelocity.x = 0f;
+                }
+            }
+        }
+        
+        private void UpdatePlayerState(ref Vector2 newFrameVelocity)
+        {
+            // 1. Ground / Ungrounded Transitions
             if (!m_PlayerContext.Grounded && m_PlayerContext.CollisionContext.Ground && !m_PlayerContext.Jumping)
             {
                 GroundTouch();
-            
                 m_PlayerContext.LastGround = m_PlayerContext.CollisionContext.Ground.CollidedTransform;
-            
-                RequestSnap(m_PlayerContext.LastGround, SnapDirection.Ground, m_PlayerContext.CollisionContext.Ground.Distance);
-            
-                newFrameVelocity.y = 0f;
-            
                 PlayerGrounded?.Invoke(m_PlayerContext);
             }
-            // we are no longer on the ground (fall or jump)
             else if (m_PlayerContext.Grounded && !m_PlayerContext.CollisionContext.Ground)
             {
                 m_PlayerContext.Grounded = false;
@@ -217,26 +238,8 @@ namespace OriGame.Player
                 m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
                 m_PlayerContext.CoyoteTime = m_PlayerControllerConfiguration.CoyoteTime;
             }
-            
-            // handle horizontal collisions
-            if (m_PlayerContext.CurrentVelocity.x != 0)
-            {
-                float currentPlayerDir = Mathf.Sign(m_PlayerContext.CurrentVelocity.x);
-                
-                if (HorizontalCollision(currentPlayerDir))
-                {
-                    newFrameVelocity.x = 0f;
-                }
-            }
-            
-            if (m_PlayerContext.CollisionContext.Ceiling && newFrameVelocity.y > 0f)
-            {
-                RequestSnap(m_PlayerContext.CollisionContext.Ceiling.CollidedTransform, SnapDirection.Ceiling, m_PlayerContext.CollisionContext.Ceiling.Distance);
-                newFrameVelocity.y = 0f;
-                m_PlayerContext.Jumping = false;
-                m_PlayerContext.Falling = true;
-            }
-            
+
+            // 2. Airborne States (Jumping vs Falling)
             if (!m_PlayerContext.Grounded)
             {
                 if (newFrameVelocity.y > 0f)
@@ -255,11 +258,6 @@ namespace OriGame.Player
                     }
                 }
             }
-        }
-        
-        private void UpdatePlayerState(ref Vector2 newFrameVelocity)
-        {
-            
         }
         
         private bool HorizontalCollision(float direction)
@@ -304,7 +302,6 @@ namespace OriGame.Player
     
         private void ApplyGravity(ref Vector2 predictedVelocity)
         {
-
             if (m_PlayerContext.Jumping) return;
             
             if (m_PlayerContext.Grounded && m_PlayerContext.CurrentVelocity.y <= 0f)
