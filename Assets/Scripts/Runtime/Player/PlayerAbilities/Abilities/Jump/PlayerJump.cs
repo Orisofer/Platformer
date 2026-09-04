@@ -79,6 +79,7 @@ namespace OriGame.Player
             
             m_PlayerContext.AvailableJumps--;
             m_PlayerContext.Falling = false;
+            m_PlayerContext.Grounded = false;
             m_PlayerContext.CoyoteTime = 0f;
             
             requestedVelocity.y = m_Config.JumpStartImpulse;
@@ -117,8 +118,12 @@ namespace OriGame.Player
             {
                 return true;
             }
+            
+            int effectiveAirJumps = (m_PlayerContext.AvailableJumps == m_Config.MaxJumps)
+                ? m_PlayerContext.AvailableJumps - 1
+                : m_PlayerContext.AvailableJumps;
 
-            return m_PlayerContext.AvailableJumps > 0;
+            return effectiveAirJumps > 0;
         }
     }
 }
