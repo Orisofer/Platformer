@@ -91,7 +91,7 @@ namespace OriGame.Player
             if (m_PlayerContext.JumpHeld && m_HoldTimer < m_Config.MaxJumpHoldTime)
             {
                 // Add upward hold acceleration to current velocity
-                float holdAcceleration = m_Config.HoldAcceleration;
+                float holdAcceleration = m_Config.JumpAcceleration;
             
                 requestedVelocity.y = Mathf.MoveTowards(
                     m_PlayerContext.CurrentVelocity.y,
@@ -100,7 +100,12 @@ namespace OriGame.Player
             }
             else if (!m_PlayerContext.JumpHeld || m_HoldTimer >= m_Config.MaxJumpHoldTime)
             {
-                requestedVelocity.y = 0f;
+                float apexReachedDeceleration = m_Config.JumpReleaseDeceleration;
+                
+                requestedVelocity.y = Mathf.MoveTowards(
+                    m_PlayerContext.CurrentVelocity.y,
+                    0,
+                    apexReachedDeceleration * fixedDeltaTime);
                 
                 m_PlayerContext.Jumping = false;
             }

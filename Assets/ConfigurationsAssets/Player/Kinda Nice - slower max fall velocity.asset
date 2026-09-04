@@ -18,7 +18,7 @@ MonoBehaviour:
   MaxSpeed: 8
   Acceleration: 100
   HorizontalDeceleration: 60
-  JumpPower: 150
+  JumpAcceleration: 4
   MaxJumpVelocity: 25
   JumpStartImpulse: 12
   MaxJumps: 1
@@ -26,3 +26,4 @@ MonoBehaviour:
   FallAcceleration: 90
   CoyoteTime: 0.1
   JumpBuffer: 0.15
+  MaxJumpHoldTime: 0.25

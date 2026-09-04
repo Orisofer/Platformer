@@ -29,8 +29,8 @@ namespace OriGame.Player
     
         [Header("JUMP")]
     
-        [Tooltip("The over-time velocity applied when jumping")]
-        public float JumpPower = 36;
+        [Tooltip("The time upward force will move the player up")]
+        public float JumpAcceleration = 4f;
     
         [Tooltip("Jump will end when reaching max velocity")]
         public float MaxJumpVelocity = 11;
@@ -53,8 +53,11 @@ namespace OriGame.Player
         [Tooltip("The amount of time we buffer a jump. This allows jump input before actually hitting the ground")]
         public float JumpBuffer = .2f;
 
+        [Tooltip("The time upward force will move the player up")]
         public float MaxJumpHoldTime = .8f;
-        public float HoldAcceleration = 4f;
+        
+        [Tooltip("The magnitude to decelerate when reaching a peak of a jump till y velocity zeros")]
+        public float JumpReleaseDeceleration = 4f;
     }
 }
     
