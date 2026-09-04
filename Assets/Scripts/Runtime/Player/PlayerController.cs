@@ -167,6 +167,8 @@ namespace OriGame.Player
             
             UpdateCollisions(ref newFrameVelocity);
             
+            UpdatePlayerState(ref newFrameVelocity);
+            
             ApplyPendingSnap();
         
             ApplyMovement(newFrameVelocity);
@@ -226,6 +228,38 @@ namespace OriGame.Player
                     newFrameVelocity.x = 0f;
                 }
             }
+            
+            if (m_PlayerContext.CollisionContext.Ceiling && newFrameVelocity.y > 0f)
+            {
+                RequestSnap(m_PlayerContext.CollisionContext.Ceiling.CollidedTransform, SnapDirection.Ceiling, m_PlayerContext.CollisionContext.Ceiling.Distance);
+                newFrameVelocity.y = 0f;
+                m_PlayerContext.Jumping = false;
+                m_PlayerContext.Falling = true;
+            }
+            
+            if (!m_PlayerContext.Grounded)
+            {
+                if (newFrameVelocity.y > 0f)
+                {
+                    m_PlayerContext.Jumping = true;
+                    m_PlayerContext.Falling = false;
+                }
+                else
+                {
+                    m_PlayerContext.Jumping = false;
+            
+                    if (!m_PlayerContext.Falling)
+                    {
+                        m_PlayerContext.Falling = true;
+                        RaisePlayerFallingEvent();
+                    }
+                }
+            }
+        }
+        
+        private void UpdatePlayerState(ref Vector2 newFrameVelocity)
+        {
+            
         }
         
         private bool HorizontalCollision(float direction)
@@ -358,7 +392,7 @@ namespace OriGame.Player
             m_PlayerContext.FacingRight = facingRight;
         }
 
-        public void RaisePlayerFallingEvent()
+        private void RaisePlayerFallingEvent()
         {
             PlayerFalling?.Invoke(m_PlayerContext);
         }

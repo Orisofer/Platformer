@@ -107,8 +107,6 @@ namespace OriGame.Player
                     m_PlayerContext.CurrentVelocity.y,
                     0,
                     apexReachedDeceleration * fixedDeltaTime);
-                
-                m_PlayerContext.Jumping = false;
             }
         }
 
