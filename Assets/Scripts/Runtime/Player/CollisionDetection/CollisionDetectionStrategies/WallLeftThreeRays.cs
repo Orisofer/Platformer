@@ -45,7 +45,7 @@ namespace OriGame.Player
         {
             Bounds colBounds = m_BoxCollider2D.bounds;
             float originX = colBounds.min.x + m_SkinWidth;
-            float rayDistance = m_SkinWidth + Mathf.Max(RAY_DISTANCE_EPSILON, -m_Ctx.FrameVelocity.x * Time.fixedDeltaTime);
+            float rayDistance = m_SkinWidth + Mathf.Max(RAY_DISTANCE_EPSILON, -m_Ctx.PredictedVelocity.x * Time.fixedDeltaTime);
         
             int hitPattern = 0b00000000;
             int overallHitsThisRound = 0;

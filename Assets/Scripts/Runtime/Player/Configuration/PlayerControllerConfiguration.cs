@@ -52,6 +52,9 @@ namespace OriGame.Player
 
         [Tooltip("The amount of time we buffer a jump. This allows jump input before actually hitting the ground")]
         public float JumpBuffer = .2f;
+
+        public float MaxJumpHoldTime = .8f;
+        public float HoldAcceleration = 4f;
     }
 }
     

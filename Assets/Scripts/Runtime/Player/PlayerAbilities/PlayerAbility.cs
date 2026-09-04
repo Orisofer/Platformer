@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace OriGame.Player
 {
     public abstract class PlayerAbility
@@ -20,7 +18,7 @@ namespace OriGame.Player
         }
 
         public abstract void OnUpdate(float deltaTime);
-        public abstract void OnFixedUpdate(float fixedDeltaTime);
+        public abstract PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime);
     }
 }
     

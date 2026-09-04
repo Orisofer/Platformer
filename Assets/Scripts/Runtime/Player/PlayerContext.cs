@@ -10,8 +10,8 @@ namespace OriGame.Player
         public CollisionContext CollisionContext;
         public SnapRequest SnapRequest;
         public LayerMask PlayerLayer;
-        public Vector2 FrameVelocity;
-        public Vector2 LastFrameVelocity;
+        public Vector2 CurrentVelocity;
+        public Vector2 PredictedVelocity;
         public Vector2 HorizontalInputDir;
         public double TimeLeftTheGround;
         public float SkinWidth;

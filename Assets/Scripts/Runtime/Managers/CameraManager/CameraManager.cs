@@ -145,7 +145,7 @@ public class CameraManager : MonoBehaviour, ICameraManager
         {
             ct.ThrowIfCancellationRequested();
             
-            if (!falling || (playerContext.FrameVelocity.y <= -m_YDampingSpeedThreshold))
+            if (!falling || (playerContext.PredictedVelocity.y <= -m_YDampingSpeedThreshold))
             {
                 float dampingLerpVal = Mathf.Lerp(startDamping, endDamping, elapsed / dampingTime);
                 float offsetLerpVal = Mathf.Lerp(startOffset, endOffset, elapsed / dampingTime);
