@@ -7,7 +7,7 @@ namespace OriGame.Player
     {
         // High priority overrides both horizontal walk (0) and jump (100)
         private const int DASH_PRIORITY_X = 500;
-        private const int DASH_PRIORITY_Y = 0;
+        private const int DASH_PRIORITY_Y = 500;
 
         private float m_DashCooldownTimer;
         private float m_DashDurationTimer;
@@ -79,7 +79,7 @@ namespace OriGame.Player
 
             Vector2 dashVelocity = m_DashDirection * m_Config.DashSpeed * fixedDeltaTime;
 
-            return new PlayerMovementRequest(dashVelocity, DASH_PRIORITY_X, DASH_PRIORITY_X);
+            return new PlayerMovementRequest(dashVelocity, DASH_PRIORITY_X, DASH_PRIORITY_Y);
         }
     }
 }
