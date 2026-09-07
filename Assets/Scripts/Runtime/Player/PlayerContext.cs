@@ -19,11 +19,11 @@ namespace OriGame.Player
         public int AvailableJumps;
         public byte CollisionPattern;
         public bool JumpHeld;
-        public bool JumpPressed;
         public bool FacingRight;
         public bool Walking;
         public bool Grounded;
         public bool Jumping;
+        public bool Dashing;
         public bool Falling;
     }
 }

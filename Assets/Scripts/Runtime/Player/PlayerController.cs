@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using OriGame.Core;
+using OriGame.Input;
 using UnityEngine;
 
 namespace OriGame.Player
@@ -18,15 +20,11 @@ namespace OriGame.Player
         private InputManager m_InputManager;
         private UpdateManager m_UpdateManager;
         private CollisionDetection m_CollisionDetection;
+        private PlayerAbilitiesManifest m_PlayerAbilitiesManifest;
+        private List<PlayerAbility> m_Abilities;
         private IGameLogger m_Logger;
-    
-        // Abilities
-        // ----------------
         private PlayerMovementRequest[] m_MovementRequests;
         private IAbilityResolver m_AbilityResolver;
-        private PlayerJump m_PlayerJump;
-        private PlayerHorizontalMove m_PlayerHorizontalMove;
-    
     
         public event Action<PlayerContext> PlayerJumped;
         public event Action<PlayerContext> PlayerFalling;
@@ -56,11 +54,11 @@ namespace OriGame.Player
 
         private void InitializePlayerAbilities()
         {
-            m_PlayerHorizontalMove = new PlayerHorizontalMove(this);
-            m_PlayerJump =  new PlayerJump(this);
             m_AbilityResolver = new AbilityResolverBasic();
+            m_PlayerAbilitiesManifest = new PlayerAbilitiesManifest(this);
+            m_Abilities = m_PlayerAbilitiesManifest.InitializeAbilities();
 
-            m_MovementRequests = new PlayerMovementRequest[3];
+            m_MovementRequests = new PlayerMovementRequest[m_Abilities.Count];
         }
 
         private bool InitializeServices(IServiceLocator serviceLocator)
@@ -110,37 +108,21 @@ namespace OriGame.Player
 
         public void OnUpdate(float deltaTime)
         {
-            UpdatePlayerInput();
-        
-            m_PlayerHorizontalMove.OnUpdate(deltaTime);
-            m_PlayerJump.OnUpdate(deltaTime);
+            ref readonly FrameInput frameInput = ref m_InputManager.FrameInput;
+            
+            OnUpdateAbilities(in frameInput, deltaTime);
         
             UpdateCoyoteTime(deltaTime);
         }
 
-        private void UpdatePlayerInput()
+        private void OnUpdateAbilities(in FrameInput frameInput, float deltaTime)
         {
-            if (m_InputManager.FrameInput.JumpPressed)
+            for (int i = 0; i < m_Abilities.Count; i++)
             {
-                m_PlayerContext.JumpPressed = true;
+                m_Abilities[i].OnUpdate(in frameInput, deltaTime);
             }
-            else
-            {
-                m_PlayerContext.JumpPressed = false;
-            }
-
-            if (m_InputManager.FrameInput.JumpHeld)
-            {
-                m_PlayerContext.JumpHeld = true;
-            }
-            else
-            {
-                m_PlayerContext.JumpHeld = false;
-            }
-
-            m_PlayerContext.HorizontalInputDir = m_InputManager.FrameInput.Direction;
         }
-    
+
         private void UpdateCoyoteTime(float deltaTime)
         {
             if (m_PlayerContext.Falling)
@@ -158,7 +140,7 @@ namespace OriGame.Player
         {
             StoreCurrentVelocity();
             
-            m_MovementRequests = UpdateAbilities(fixedDeltaTime);
+            m_MovementRequests = OnFixedUpdateAbilities(fixedDeltaTime);
             
             Vector2 newFrameVelocity = m_AbilityResolver.ResolveMovement(ref m_MovementRequests, m_PlayerContext);
             
@@ -173,10 +155,12 @@ namespace OriGame.Player
             ApplyMovement(newFrameVelocity);
         }
 
-        private ref readonly PlayerMovementRequest[] UpdateAbilities(float fixedDeltaTime)
+        private ref readonly PlayerMovementRequest[] OnFixedUpdateAbilities(float fixedDeltaTime)
         {
-            m_MovementRequests[1] = m_PlayerHorizontalMove.OnFixedUpdate(fixedDeltaTime);
-            m_MovementRequests[2] = m_PlayerJump.OnFixedUpdate(fixedDeltaTime);
+            for (int i = 0; i < m_Abilities.Count; i++)
+            {
+                m_MovementRequests[i] = m_Abilities[i].OnFixedUpdate(fixedDeltaTime);
+            }
             
             return ref m_MovementRequests;
         }
@@ -301,7 +285,7 @@ namespace OriGame.Player
     
         private void ApplyGravity(ref Vector2 predictedVelocity)
         {
-            if (m_PlayerContext.Jumping) return;
+            if (m_PlayerContext.Jumping || m_PlayerContext.Dashing) return;
             
             if (m_PlayerContext.Grounded && m_PlayerContext.CurrentVelocity.y <= 0f)
             {

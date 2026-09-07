@@ -1,3 +1,4 @@
+using OriGame.Input;
 using UnityEngine;
 
 namespace OriGame.Player
@@ -11,8 +12,10 @@ namespace OriGame.Player
         {
         }
 
-        public override void OnUpdate(float deltaTime)
+        public override void OnUpdate(in FrameInput frameInput, float deltaTime)
         {
+            m_PlayerContext.HorizontalInputDir = frameInput.Direction;
+            
             if (m_PlayerContext.HorizontalInputDir == Vector2.zero)
             {
                 m_PlayerContext.Walking = false;

@@ -1,3 +1,4 @@
+using OriGame.Input;
 using UnityEngine;
 
 namespace OriGame.Player
@@ -16,7 +17,7 @@ namespace OriGame.Player
             m_HoldTimer = 0f;
         }
 
-        public override void OnUpdate(float deltaTime)
+        public override void OnUpdate(in FrameInput frameInput, float deltaTime)
         {
             if (m_Config.MaxJumps == 0) return;
 
@@ -24,7 +25,7 @@ namespace OriGame.Player
             m_PlayerContext.Falling = !m_PlayerContext.Grounded && m_PlayerContext.CurrentVelocity.y <= 0f;
 
             // Input buffering
-            if (m_PlayerContext.JumpPressed)
+            if (frameInput.JumpPressed)
             {
                 m_JumpBufferTimer = m_Config.JumpBuffer;
             }
@@ -33,14 +34,20 @@ namespace OriGame.Player
                 m_JumpBufferTimer -= deltaTime;
             }
 
-            if (m_PlayerContext.JumpHeld)
+            if (frameInput.JumpHeld)
             {
+                m_PlayerContext.JumpHeld = true;
+                
                 m_HoldTimer += deltaTime;
 
                 if (m_HoldTimer >= m_Config.MaxJumpHoldTime)
                 {
                     m_HoldTimer = m_Config.MaxJumpHoldTime;
                 }
+            }
+            else
+            {
+                m_PlayerContext.JumpHeld = false;
             }
         }
 

@@ -58,6 +58,23 @@ namespace OriGame.Player
         
         [Tooltip("The magnitude to decelerate when reaching a peak of a jump till y velocity zeros")]
         public float JumpReleaseDeceleration = 4f;
+        
+        // --------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------
+
+        [Header("Dash")]
+        
+        [Tooltip("How long the dash takes")]
+        public float DashDuration = .2f;
+        
+        [Tooltip("How much time needs until player can dash again")]
+        public float DashCooldown = .025f;
+        
+        [Tooltip("How much velocity player gain while dashing")]
+        public float DashSpeed = 2f;
+        
+        [Tooltip("How much time allowing the player to dash if missed click")]
+        public float DashBuffer = .1f;
     }
 }
     
