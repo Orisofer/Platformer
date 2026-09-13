@@ -19,6 +19,8 @@ namespace OriGame.Player
 
         public override void OnUpdate(in FrameInput frameInput, float deltaTime)
         {
+            if (!Enabled) return;
+            
             if (m_Config.MaxJumps == 0) return;
 
             // Update falling state context

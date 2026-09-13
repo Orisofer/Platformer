@@ -21,6 +21,8 @@ namespace OriGame.Player
 
         public override void OnUpdate(in FrameInput frameInput, float deltaTime)
         {
+            if (!Enabled) return;
+            
             m_DashCooldownTimer -= deltaTime;
 
             if (m_DashCooldownTimer <= 0f)

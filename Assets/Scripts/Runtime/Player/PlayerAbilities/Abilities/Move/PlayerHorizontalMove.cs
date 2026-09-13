@@ -8,12 +8,14 @@ namespace OriGame.Player
         private const int PRIORITY_ON_X = 100;
         private const int PRIORITY_ON_Y = 0;
         
-        public PlayerHorizontalMove(PlayerController controller, bool enabled = false) : base(controller, enabled)
+        public PlayerHorizontalMove(PlayerController controller, bool enabled = true) : base(controller, enabled)
         {
         }
 
         public override void OnUpdate(in FrameInput frameInput, float deltaTime)
         {
+            if (!Enabled) return;
+            
             m_PlayerContext.HorizontalInputDir = frameInput.Direction;
             
             if (m_PlayerContext.HorizontalInputDir == Vector2.zero)

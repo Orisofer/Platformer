@@ -183,21 +183,23 @@ namespace OriGame.Player
             // Ground Snap
             if (!m_PlayerContext.Grounded && m_PlayerContext.CollisionContext.Ground && !m_PlayerContext.Jumping)
             {
-                RequestSnap(m_PlayerContext.CollisionContext.Ground.CollidedTransform, SnapDirection.Ground, m_PlayerContext.CollisionContext.Ground.Distance);
+                CollisionDetectionResult colData = m_PlayerContext.CollisionContext.Ground;
+                RequestSnap(colData.CollidedTransform, SnapDirection.Ground, colData.Distance);
                 newFrameVelocity.y = 0f;
             }
 
             // Ceiling Snap
             if (m_PlayerContext.CollisionContext.Ceiling && newFrameVelocity.y > 0f)
             {
-                RequestSnap(m_PlayerContext.CollisionContext.Ceiling.CollidedTransform, SnapDirection.Ceiling, m_PlayerContext.CollisionContext.Ceiling.Distance);
+                CollisionDetectionResult colData = m_PlayerContext.CollisionContext.Ceiling;
+                RequestSnap(colData.CollidedTransform, SnapDirection.Ceiling, colData.Distance);
                 newFrameVelocity.y = 0f;
             }
 
             // Wall Snaps
-            if (m_PlayerContext.PredictedVelocity.x != 0)
+            if (newFrameVelocity.x != 0)
             {
-                float currentPlayerDir = Mathf.Sign(m_PlayerContext.PredictedVelocity.x);
+                float currentPlayerDir = Mathf.Sign(newFrameVelocity.x);
                 if (HorizontalCollision(currentPlayerDir))
                 {
                     newFrameVelocity.x = 0f;
