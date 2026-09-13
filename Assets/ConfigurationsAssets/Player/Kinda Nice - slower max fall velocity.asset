@@ -15,9 +15,11 @@ MonoBehaviour:
   PlayerLayer:
     serializedVersion: 2
     m_Bits: 2048
+  MovementEnabled: 1
   MaxSpeed: 8
   Acceleration: 100
   HorizontalDeceleration: 60
+  JumpEnabled: 0
   JumpAcceleration: 4
   MaxJumpVelocity: 25
   JumpStartImpulse: 12
@@ -27,3 +29,9 @@ MonoBehaviour:
   CoyoteTime: 0.1
   JumpBuffer: 0.15
   MaxJumpHoldTime: 0.25
+  JumpReleaseDeceleration: 4
+  DashEnabled: 0
+  DashDuration: 0.2
+  DashCooldown: 0.025
+  DashSpeed: 2
+  DashBuffer: 0.1
