@@ -9,10 +9,11 @@ namespace OriGame.Player
         private const int DASH_PRIORITY_X = 500;
         private const int DASH_PRIORITY_Y = 500;
 
+        private Vector2 m_DashDirection;
         private float m_DashCooldownTimer;
         private float m_DashDurationTimer;
         private float m_DashBufferTimer;
-        private Vector2 m_DashDirection;
+        private bool m_IsAirDashing;
 
         public PlayerDash(PlayerController controller, bool enabled = true) : base(controller, enabled)
         {
@@ -38,6 +39,12 @@ namespace OriGame.Player
             {
                 m_DashBufferTimer -= deltaTime;
             }
+
+            // reset air dashing state
+            if (m_IsAirDashing && m_PlayerContext.Grounded)
+            {
+                m_IsAirDashing = false;
+            }
         }
         
         public override PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime)
@@ -47,7 +54,7 @@ namespace OriGame.Player
             if (!m_PlayerContext.Dashing)
             {
                 // start new dash
-                if (m_DashBufferTimer > 0f && m_DashCooldownTimer <= 0f)
+                if (m_DashBufferTimer > 0f && m_DashCooldownTimer <= 0f && !m_IsAirDashing)
                 {
                     dashVelocity = StartDash(fixedDeltaTime);
                 }
@@ -87,6 +94,11 @@ namespace OriGame.Player
             m_PlayerContext.Dashing = true;
             m_DashDurationTimer = m_Config.DashDuration;
             m_DashCooldownTimer = m_Config.DashCooldown;
+
+            if (!m_PlayerContext.Grounded)
+            {
+                m_IsAirDashing = true;
+            }
                     
             if (m_PlayerContext.HorizontalInputDir.x != 0)
             {
