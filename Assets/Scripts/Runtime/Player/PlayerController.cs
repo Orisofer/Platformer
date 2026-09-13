@@ -195,9 +195,9 @@ namespace OriGame.Player
             }
 
             // Wall Snaps
-            if (m_PlayerContext.CurrentVelocity.x != 0)
+            if (m_PlayerContext.PredictedVelocity.x != 0)
             {
-                float currentPlayerDir = Mathf.Sign(m_PlayerContext.CurrentVelocity.x);
+                float currentPlayerDir = Mathf.Sign(m_PlayerContext.PredictedVelocity.x);
                 if (HorizontalCollision(currentPlayerDir))
                 {
                     newFrameVelocity.x = 0f;

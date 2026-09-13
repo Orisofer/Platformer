@@ -37,9 +37,78 @@ namespace OriGame.Player
                 m_DashBufferTimer -= deltaTime;
             }
         }
-
+        
         public override PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime)
         {
+            Vector2 dashVelocity = Vector2.zero;
+
+            if (!m_PlayerContext.Dashing)
+            {
+                // start new dash
+                if (m_DashBufferTimer > 0f && m_DashCooldownTimer <= 0f)
+                {
+                    dashVelocity = StartDash(fixedDeltaTime);
+                }
+                else
+                {
+                    return new PlayerMovementRequest(dashVelocity, -1, -1);
+                }
+            }
+            else
+            {
+                if (m_DashDurationTimer >= 0f)
+                {
+                    dashVelocity = UpdateDash(fixedDeltaTime);
+                }
+                else
+                {
+                    EndDash();
+                }
+            }
+
+            return new PlayerMovementRequest(dashVelocity, DASH_PRIORITY_X, DASH_PRIORITY_Y);
+        }
+
+        private void EndDash()
+        {
+            m_PlayerContext.Dashing = false;
+        }
+
+        private Vector2 UpdateDash(float fixedDeltaTime)
+        {
+            m_DashDurationTimer -= fixedDeltaTime;
+            return m_DashDirection * (m_Config.DashSpeed * fixedDeltaTime);
+        }
+
+        private Vector2 StartDash(float fixedDeltaTime)
+        {
+            m_PlayerContext.Dashing = true;
+            m_DashDurationTimer = m_Config.DashDuration;
+            m_DashCooldownTimer = m_Config.DashCooldown;
+                    
+            if (m_PlayerContext.HorizontalInputDir.x != 0)
+            {
+                m_DashDirection = new Vector2(Mathf.Sign(m_PlayerContext.HorizontalInputDir.x), 0f);
+            }
+            else
+            {
+                if (m_PlayerContext.FacingRight)
+                {
+                    m_DashDirection = new Vector2(1, 0);
+                }
+                else
+                {
+                    m_DashDirection =  new Vector2(-1, 0);
+                }
+            }
+
+            return m_DashDirection * (m_Config.DashSpeed * fixedDeltaTime);
+        }
+
+        public PlayerMovementRequest OnFixedUpdate2(float fixedDeltaTime)
+        {
+            Vector2 dashVelocity = Vector2.zero;
+            
             // Trigger dash intent on press if off cooldown
             if (m_DashBufferTimer > 0f && m_DashCooldownTimer <= 0f && !m_PlayerContext.Dashing)
             {
@@ -67,7 +136,7 @@ namespace OriGame.Player
             
             if (!m_PlayerContext.Dashing)
             {
-                return new PlayerMovementRequest(Vector2.zero, -1, -1);
+                return new PlayerMovementRequest(dashVelocity, -1, -1);
             }
 
             m_DashDurationTimer -= fixedDeltaTime;
@@ -76,8 +145,10 @@ namespace OriGame.Player
             {
                 m_PlayerContext.Dashing = false;
             }
-
-            Vector2 dashVelocity = m_DashDirection * m_Config.DashSpeed * fixedDeltaTime;
+            else
+            {
+                 dashVelocity = m_DashDirection * m_Config.DashSpeed * fixedDeltaTime;
+            }
 
             return new PlayerMovementRequest(dashVelocity, DASH_PRIORITY_X, DASH_PRIORITY_Y);
         }
