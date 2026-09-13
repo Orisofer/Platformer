@@ -14,6 +14,9 @@ namespace OriGame.Player
         // --------------------------------------------------------------------------------
 
         [Header("MOVEMENT")]
+        
+        [Tooltip("Toggle Ability")]
+        public bool MovementEnabled = true;
     
         [Tooltip("The top horizontal movement speed")]
         public float MaxSpeed = 14;
@@ -28,6 +31,9 @@ namespace OriGame.Player
         // --------------------------------------------------------------------------------
     
         [Header("JUMP")]
+        
+        [Tooltip("Toggle Ability")]
+        public bool JumpEnabled = true;
     
         [Tooltip("The time upward force will move the player up")]
         public float JumpAcceleration = 4f;
@@ -63,6 +69,9 @@ namespace OriGame.Player
         // --------------------------------------------------------------------------------
 
         [Header("Dash")]
+        
+        [Tooltip("Toggle Ability")]
+        public bool DashEnabled = true;
         
         [Tooltip("How long the dash takes")]
         public float DashDuration = .2f;

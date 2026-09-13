@@ -14,7 +14,7 @@ namespace OriGame.Player
 
         public override void OnUpdate(in FrameInput frameInput, float deltaTime)
         {
-            if (!Enabled) return;
+            if (!m_Config.MovementEnabled) return;
             
             m_PlayerContext.HorizontalInputDir = frameInput.Direction;
             

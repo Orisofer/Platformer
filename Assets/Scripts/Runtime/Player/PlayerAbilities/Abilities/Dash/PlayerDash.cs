@@ -22,7 +22,7 @@ namespace OriGame.Player
 
         public override void OnUpdate(in FrameInput frameInput, float deltaTime)
         {
-            if (!Enabled) return;
+            if (!m_Config.DashEnabled) return;
             
             m_DashCooldownTimer -= deltaTime;
 
