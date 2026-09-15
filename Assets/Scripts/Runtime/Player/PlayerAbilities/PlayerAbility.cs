@@ -2,19 +2,19 @@ using OriGame.Input;
 
 namespace OriGame.Player
 {
-    public abstract class PlayerAbility : IPlayerAbility
+    public abstract class PlayerAbility<T> : IPlayerAbility where T : PlayerAbilityConfiguration
     {
     protected PlayerController m_Controller;
     protected PlayerContext m_PlayerContext;
-    protected PlayerControllerConfiguration m_Config;
+    protected T m_Config;
 
     public bool Enabled { get; set; } = true;
 
-    protected PlayerAbility(PlayerController controller, bool enabled = false)
+    protected PlayerAbility(T config, PlayerController controller, bool enabled = false)
     {
         m_Controller = controller;
         m_PlayerContext = controller.PlayerContext;
-        m_Config = controller.PlayerConfiguration;
+        m_Config = config;
 
         Enabled = enabled;
     }

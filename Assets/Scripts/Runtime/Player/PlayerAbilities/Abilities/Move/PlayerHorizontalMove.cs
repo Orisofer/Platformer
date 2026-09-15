@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace OriGame.Player
 {
-    public class PlayerHorizontalMove : PlayerAbility
+    public class PlayerHorizontalMove : PlayerAbility<PlayerMoveConfiguration>
     {
         private const int PRIORITY_ON_X = 100;
         private const int PRIORITY_ON_Y = 0;
         
-        public PlayerHorizontalMove(PlayerController controller, bool enabled = true) : base(controller, enabled)
+        public PlayerHorizontalMove(PlayerMoveConfiguration config, PlayerController controller, bool enabled = true) : base(config, controller, enabled)
         {
         }
 

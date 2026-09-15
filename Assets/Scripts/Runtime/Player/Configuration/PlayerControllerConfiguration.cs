@@ -9,81 +9,35 @@ namespace OriGame.Player
     
         [Tooltip("Set this to the layer your player is on")]
         public LayerMask PlayerLayer;
+        
+        [Header("General")]
+        
+        [Tooltip("Player Max Fall Speed")]
+        public float MaxFallSpeed = 40;
+        
+        [Tooltip("The player's capacity to gain fall speed. a.k.a. In Air Gravity")]
+        public float FallAcceleration = 110;
     
         // --------------------------------------------------------------------------------
         // --------------------------------------------------------------------------------
 
         [Header("MOVEMENT")]
         
-        [Tooltip("Toggle Ability")]
-        public bool MovementEnabled = true;
-    
-        [Tooltip("The top horizontal movement speed")]
-        public float MaxSpeed = 14;
-
-        [Tooltip("The player's capacity to gain horizontal speed")]
-        public float Acceleration = 120;
-
-        [Tooltip("The pace at which the player comes to a stop")]
-        public float HorizontalDeceleration = 60;
+        public PlayerMoveConfiguration PlayerMoveConfiguration;
     
         // --------------------------------------------------------------------------------
         // --------------------------------------------------------------------------------
-    
+        
         [Header("JUMP")]
         
-        [Tooltip("Toggle Ability")]
-        public bool JumpEnabled = true;
-    
-        [Tooltip("The time upward force will move the player up")]
-        public float JumpAcceleration = 4f;
-    
-        [Tooltip("Jump will end when reaching max velocity")]
-        public float MaxJumpVelocity = 11;
-    
-        [Tooltip("The immediate velocity applied when starting jumping")]
-        public float JumpStartImpulse = 4;
-    
-        [Tooltip("The maximum vertical movement speed")]
-        public int MaxJumps = 1;
-
-        [Tooltip("The maximum vertical movement speed")]
-        public float MaxFallSpeed = 40;
-
-        [Tooltip("The player's capacity to gain fall speed. a.k.a. In Air Gravity")]
-        public float FallAcceleration = 110;
-
-        [Tooltip("The time before coyote jump becomes unusable. Coyote jump allows jump to execute even after leaving a ledge")]
-        public float CoyoteTime = .15f;
-
-        [Tooltip("The amount of time we buffer a jump. This allows jump input before actually hitting the ground")]
-        public float JumpBuffer = .2f;
-
-        [Tooltip("The time upward force will move the player up")]
-        public float MaxJumpHoldTime = .8f;
-        
-        [Tooltip("The magnitude to decelerate when reaching a peak of a jump till y velocity zeros")]
-        public float JumpReleaseDeceleration = 4f;
+        public PlayerJumpConfiguration PlayerJumpConfiguration;
         
         // --------------------------------------------------------------------------------
         // --------------------------------------------------------------------------------
 
         [Header("Dash")]
         
-        [Tooltip("Toggle Ability")]
-        public bool DashEnabled = true;
-        
-        [Tooltip("How long the dash takes")]
-        public float DashDuration = .2f;
-        
-        [Tooltip("How much time needs until player can dash again")]
-        public float DashCooldown = .025f;
-        
-        [Tooltip("How much velocity player gain while dashing")]
-        public float DashSpeed = 2f;
-        
-        [Tooltip("How much time allowing the player to dash if missed click")]
-        public float DashBuffer = .1f;
+        public PlayerDashConfiguration PlayerDashConfiguration;
     }
 }
     

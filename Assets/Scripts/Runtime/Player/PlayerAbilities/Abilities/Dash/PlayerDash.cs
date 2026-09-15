@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace OriGame.Player
 {
-    public class PlayerDash : PlayerAbility
+    public class PlayerDash : PlayerAbility<PlayerDashConfiguration>
     {
         // High priority overrides both horizontal walk (0) and jump (100)
         private const int DASH_PRIORITY_X = 500;
@@ -15,7 +15,7 @@ namespace OriGame.Player
         private float m_DashBufferTimer;
         private bool m_IsAirDashing;
 
-        public PlayerDash(PlayerController controller, bool enabled = true) : base(controller, enabled)
+        public PlayerDash(PlayerDashConfiguration config, PlayerController controller, bool enabled = true) : base(config, controller, enabled)
         {
             m_DashBufferTimer = 0f;
         }

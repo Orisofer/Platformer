@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace OriGame.Player
 {
-    public class PlayerJump : PlayerAbility
+    public class PlayerJump : PlayerAbility<PlayerJumpConfiguration>
     {
         private const int PRIORITY_ON_X = 0;
         private const int PRIORITY_ON_Y = 100;
@@ -11,7 +11,7 @@ namespace OriGame.Player
         private float m_JumpBufferTimer;
         private float m_HoldTimer;
 
-        public PlayerJump(PlayerController controller, bool enabled = true) : base(controller, enabled)
+        public PlayerJump(PlayerJumpConfiguration config, PlayerController controller, bool enabled = true) : base(config, controller, enabled)
         {
             m_JumpBufferTimer = 0f;
             m_HoldTimer = 0f;

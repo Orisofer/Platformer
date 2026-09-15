@@ -21,7 +21,7 @@ namespace OriGame.Player
         private UpdateManager m_UpdateManager;
         private CollisionDetection m_CollisionDetection;
         private PlayerAbilitiesManifest m_PlayerAbilitiesManifest;
-        private List<PlayerAbility> m_Abilities;
+        private List<IPlayerAbility> m_Abilities;
         private IGameLogger m_Logger;
         private PlayerMovementRequest[] m_MovementRequests;
         private IAbilityResolver m_AbilityResolver;
@@ -221,7 +221,7 @@ namespace OriGame.Player
                 m_PlayerContext.Grounded = false;
                 m_PlayerContext.LastGround = null;
                 m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
-                m_PlayerContext.CoyoteTime = m_PlayerControllerConfiguration.CoyoteTime;
+                m_PlayerContext.CoyoteTime = m_PlayerControllerConfiguration.PlayerJumpConfiguration.CoyoteTime;
             }
 
             // 2. Airborne States (Jumping vs Falling)
@@ -282,7 +282,7 @@ namespace OriGame.Player
             m_PlayerContext.Grounded = true;
             m_PlayerContext.Falling = false;
             m_PlayerContext.TimeLeftTheGround = 0;
-            m_PlayerContext.AvailableJumps = m_PlayerControllerConfiguration.MaxJumps;
+            m_PlayerContext.AvailableJumps = m_PlayerControllerConfiguration.PlayerJumpConfiguration.MaxJumps;
         }
     
         private void ApplyGravity(ref Vector2 predictedVelocity)
