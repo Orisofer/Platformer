@@ -219,28 +219,18 @@ namespace OriGame.Player
             else if (m_PlayerContext.Grounded && !m_PlayerContext.CollisionContext.Ground)
             {
                 m_PlayerContext.Grounded = false;
-                m_PlayerContext.LastGround = null;
                 m_PlayerContext.TimeLeftTheGround = m_InputManager.FrameInput.Time;
                 m_PlayerContext.CoyoteTime = m_PlayerControllerConfiguration.PlayerJumpConfiguration.CoyoteTime;
             }
 
-            // 2. Airborne States (Jumping vs Falling)
+            // 2. Falling State update
             if (!m_PlayerContext.Grounded)
             {
-                if (newFrameVelocity.y > 0f)
+                if (newFrameVelocity.y < 0f && !m_PlayerContext.Falling)
                 {
-                    m_PlayerContext.Jumping = true;
-                    m_PlayerContext.Falling = false;
-                }
-                else
-                {
-                    m_PlayerContext.Jumping = false;
-            
-                    if (!m_PlayerContext.Falling)
-                    {
-                        m_PlayerContext.Falling = true;
-                        RaisePlayerFallingEvent();
-                    }
+                    m_PlayerContext.Falling = true;
+                    
+                    RaisePlayerFallingEvent();
                 }
             }
         }

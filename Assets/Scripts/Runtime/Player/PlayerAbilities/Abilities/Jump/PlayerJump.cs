@@ -110,6 +110,8 @@ namespace OriGame.Player
             }
             else if (!m_PlayerContext.JumpHeld || m_HoldTimer >= m_Config.MaxJumpHoldTime)
             {
+                m_PlayerContext.Jumping = false;
+                
                 float apexReachedDeceleration = m_Config.JumpReleaseDeceleration;
                 
                 requestedVelocity.y = Mathf.MoveTowards(
