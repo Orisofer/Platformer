@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: PlayerMoveConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::OriGame.Player.PlayerMoveConfiguration
   MovementEnabled: 1
-  MaxSpeed: 14
-  Acceleration: 120
+  MaxSpeed: 8
+  Acceleration: 100
   HorizontalDeceleration: 60

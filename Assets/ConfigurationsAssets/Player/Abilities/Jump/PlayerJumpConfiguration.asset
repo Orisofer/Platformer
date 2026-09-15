@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OriGame.Player.PlayerJumpConfiguration
   JumpEnabled: 1
   JumpAcceleration: 4
-  MaxJumpVelocity: 11
-  JumpStartImpulse: 4
+  MaxJumpVelocity: 25
+  JumpStartImpulse: 12
   MaxJumps: 1
-  CoyoteTime: 0.15
-  JumpBuffer: 0.2
-  MaxJumpHoldTime: 0.8
+  CoyoteTime: 0.1
+  JumpBuffer: 0.15
+  MaxJumpHoldTime: 0.25
   JumpReleaseDeceleration: 4
