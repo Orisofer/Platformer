@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerDashConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::OriGame.Player.PlayerDashConfiguration
   DashEnabled: 1
-  DashDuration: 0.2
-  DashCooldown: 0.025
-  DashSpeed: 2
-  DashBuffer: 0.1
+  DashDuration: 0.23
+  DashCooldown: 0.5
+  DashSpeed: 800
+  DashBuffer: 0.2
