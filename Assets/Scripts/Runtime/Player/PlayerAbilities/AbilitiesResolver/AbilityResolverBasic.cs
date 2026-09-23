@@ -15,17 +15,19 @@ public class AbilityResolverBasic : IAbilityResolver
         
         for (int i = 0; i < requests.Length; i++)
         {
-            if (requests[i].PriorityOnX >= topPriorityX)
+            ref readonly PlayerMovementRequest request = ref requests[i];
+            
+            if (request.PriorityOnX >= topPriorityX)
             {
-                topPriorityX =  requests[i].PriorityOnX;
-                finalVelocity.x = requests[i].Target.x;
+                topPriorityX =  request.PriorityOnX;
+                finalVelocity.x = request.Target.x;
             }
             
-            if (requests[i].PriorityOnY >= topPriorityY)
+            if (request.PriorityOnY >= topPriorityY)
             {
-                topPriorityY =  requests[i].PriorityOnY;
-                finalVelocity.y = requests[i].Target.y;
-                gravityScale =  requests[i].GravityScale;
+                topPriorityY =  request.PriorityOnY;
+                finalVelocity.y = request.Target.y;
+                gravityScale =  request.GravityScale;
             }
         }
         
