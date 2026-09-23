@@ -33,7 +33,7 @@ namespace OriGame.Player
          * 0b00110000 = upper ray and mid-ray hit
          * 0b00111000 = full hit (all 3 rays)
          * 0b00011000 = mid-ray and lower ray hit
-         * 0b00001000 = only lowe ray hit
+         * 0b00001000 = only lower ray hit
          *
          * most significant bit: 0 for left 1 for right
          */

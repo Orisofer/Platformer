@@ -17,7 +17,6 @@ namespace OriGame.Player
         public float SkinWidth;
         public float CoyoteTime;
         public int AvailableJumps;
-        public byte CollisionPattern;
         public bool JumpHeld;
         public bool FacingRight;
         public bool Walking;

@@ -7,6 +7,7 @@ namespace OriGame.Player
         public CollisionDetectionResult Ceiling;
         public CollisionDetectionResult WallLeft;
         public CollisionDetectionResult WallRight;
+        public byte CollisionPattern;
     }
 }
     

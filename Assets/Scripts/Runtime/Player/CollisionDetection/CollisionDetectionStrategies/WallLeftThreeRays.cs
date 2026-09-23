@@ -4,7 +4,7 @@ namespace OriGame.Player
 {
     public class WallLeftThreeRays : ICollisionDetectionStrategy
     {
-        private const float RAY_DISTANCE_EPSILON = 0.1f;
+        private const float RAY_DISTANCE_EPSILON = 0.01f;
     
         private readonly PlayerContext m_Ctx;
         private readonly BoxCollider2D m_BoxCollider2D;

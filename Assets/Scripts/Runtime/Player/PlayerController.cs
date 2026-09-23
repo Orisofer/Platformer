@@ -168,7 +168,7 @@ namespace OriGame.Player
         
         private void UpdateCollisions(ref ResolvedMovement newFrameVelocity)
         {
-            m_PlayerContext.CollisionPattern = 0;
+            m_PlayerContext.CollisionContext.CollisionPattern = 0;
             m_PlayerContext.PredictedVelocity = newFrameVelocity.Target;
             
             m_PlayerContext.CollisionContext.Ground = m_CollisionDetection.GroundCheck();
@@ -176,10 +176,10 @@ namespace OriGame.Player
             m_PlayerContext.CollisionContext.WallLeft = m_CollisionDetection.LeftWallCheck();
             m_PlayerContext.CollisionContext.WallRight = m_CollisionDetection.RightWallCheck();
         
-            m_PlayerContext.CollisionPattern |= m_PlayerContext.CollisionContext.Ground.HitPattern;
-            m_PlayerContext.CollisionPattern |= m_PlayerContext.CollisionContext.Ceiling.HitPattern;
-            m_PlayerContext.CollisionPattern |= m_PlayerContext.CollisionContext.WallLeft.HitPattern;
-            m_PlayerContext.CollisionPattern |= m_PlayerContext.CollisionContext.WallRight.HitPattern;
+            m_PlayerContext.CollisionContext.CollisionPattern |= m_PlayerContext.CollisionContext.Ground.HitPattern;
+            m_PlayerContext.CollisionContext.CollisionPattern |= m_PlayerContext.CollisionContext.Ceiling.HitPattern;
+            m_PlayerContext.CollisionContext.CollisionPattern |= m_PlayerContext.CollisionContext.WallLeft.HitPattern;
+            m_PlayerContext.CollisionContext.CollisionPattern |= m_PlayerContext.CollisionContext.WallRight.HitPattern;
 
             // Ground Snap
             if (!m_PlayerContext.Grounded && m_PlayerContext.CollisionContext.Ground && newFrameVelocity.Target.y <= 0f)
