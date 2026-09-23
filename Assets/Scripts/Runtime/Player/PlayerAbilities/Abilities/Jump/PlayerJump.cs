@@ -56,22 +56,23 @@ namespace OriGame.Player
         public override PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime)
         {
             Vector2 requestedVelocity = Vector2.zero;
+            float gravityScale = 1.0f;
             requestedVelocity.y = m_PlayerContext.CurrentVelocity.y;
 
             // 1. Trigger Jump Launch
             if (!m_PlayerContext.Jumping && m_JumpBufferTimer > 0f && AllowJump())
             {
-                StartJump(ref requestedVelocity);
+                StartJump(ref requestedVelocity, ref gravityScale);
             }
             else if (m_PlayerContext.Jumping)
             {
-                ProcessJumpHold(fixedDeltaTime, ref requestedVelocity);
+                ProcessJumpHold(fixedDeltaTime, ref requestedVelocity, ref gravityScale);
             }
 
-            return new PlayerMovementRequest(requestedVelocity, PRIORITY_ON_X, PRIORITY_ON_Y);
+            return new PlayerMovementRequest(requestedVelocity, PRIORITY_ON_X, PRIORITY_ON_Y, gravityScale);
         }
 
-        private void StartJump(ref Vector2 requestedVelocity)
+        private void StartJump(ref Vector2 requestedVelocity, ref float gravityScale)
         {
             m_JumpBufferTimer = 0f;
             m_HoldTimer = 0f;
@@ -92,11 +93,12 @@ namespace OriGame.Player
             m_PlayerContext.CoyoteTime = 0f;
             
             requestedVelocity.y = m_Config.JumpStartImpulse;
+            gravityScale = m_Config.JumpGravityScale;
 
             m_Controller.RaiseJumpEvent();
         }
 
-        private void ProcessJumpHold(float fixedDeltaTime, ref Vector2 requestedVelocity)
+        private void ProcessJumpHold(float fixedDeltaTime, ref Vector2 requestedVelocity, ref float gravityScale)
         {
             if (m_PlayerContext.JumpHeld && m_HoldTimer < m_Config.MaxJumpHoldTime)
             {
@@ -107,6 +109,8 @@ namespace OriGame.Player
                     m_PlayerContext.CurrentVelocity.y,
                     m_Config.MaxJumpVelocity,
                     holdAcceleration * fixedDeltaTime);
+                
+                gravityScale =  m_Config.JumpGravityScale;
             }
             else if (!m_PlayerContext.JumpHeld || m_HoldTimer >= m_Config.MaxJumpHoldTime)
             {
@@ -118,6 +122,7 @@ namespace OriGame.Player
                     m_PlayerContext.CurrentVelocity.y,
                     0,
                     apexReachedDeceleration * fixedDeltaTime);
+                gravityScale = 1.0f;
             }
         }
 

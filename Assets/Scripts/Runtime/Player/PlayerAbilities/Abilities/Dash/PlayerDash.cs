@@ -50,6 +50,7 @@ namespace OriGame.Player
         public override PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime)
         {
             Vector2 dashVelocity = Vector2.zero;
+            float gravityScale = m_Config.DashGravityScale;
 
             if (!m_PlayerContext.Dashing)
             {
@@ -60,7 +61,7 @@ namespace OriGame.Player
                 }
                 else
                 {
-                    return new PlayerMovementRequest(dashVelocity, -1, -1);
+                    return new PlayerMovementRequest(dashVelocity, -1, -1, gravityScale);
                 }
             }
             else
@@ -75,7 +76,7 @@ namespace OriGame.Player
                 }
             }
 
-            return new PlayerMovementRequest(dashVelocity, DASH_PRIORITY_X, DASH_PRIORITY_Y);
+            return new PlayerMovementRequest(dashVelocity, DASH_PRIORITY_X, DASH_PRIORITY_Y, gravityScale);
         }
 
         private void EndDash()

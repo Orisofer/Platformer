@@ -19,5 +19,8 @@ namespace OriGame.Player
         
         [Tooltip("How much time allowing the player to dash if missed click")]
         public float DashBuffer = .1f;
+        
+        [Tooltip("How much gravity happens to the player with the ability triggered")]
+        public float DashGravityScale = 0f;
     }
 }

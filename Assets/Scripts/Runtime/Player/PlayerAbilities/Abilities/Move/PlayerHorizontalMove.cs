@@ -5,6 +5,7 @@ namespace OriGame.Player
 {
     public class PlayerHorizontalMove : PlayerAbility<PlayerMoveConfiguration>
     {
+        private const float ABILITY_GRAVITY_SCALE = 1.0f;
         private const int PRIORITY_ON_X = 100;
         private const int PRIORITY_ON_Y = 0;
         
@@ -72,7 +73,7 @@ namespace OriGame.Player
                 }
             }
 
-            PlayerMovementRequest movementRequest = new PlayerMovementRequest(requestTarget, PRIORITY_ON_X, PRIORITY_ON_Y);
+            PlayerMovementRequest movementRequest = new PlayerMovementRequest(requestTarget, PRIORITY_ON_X, PRIORITY_ON_Y, ABILITY_GRAVITY_SCALE);
             
             return movementRequest;
         }

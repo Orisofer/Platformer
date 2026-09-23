@@ -31,6 +31,9 @@ namespace OriGame.Player
         
         [Tooltip("The magnitude to decelerate when reaching a peak of a jump till y velocity zeros")]
         public float JumpReleaseDeceleration = 4f;
+        
+        [Tooltip("How much gravity happens to the player with the ability triggered")]
+        public float JumpGravityScale = 0f;
     }
 }
 

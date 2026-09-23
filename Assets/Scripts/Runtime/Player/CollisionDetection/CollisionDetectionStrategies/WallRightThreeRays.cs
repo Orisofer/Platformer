@@ -47,7 +47,7 @@ namespace OriGame.Player
             float originX = colBounds.max.x - m_SkinWidth;
             float rayDistance = m_SkinWidth + Mathf.Max(RAY_DISTANCE_EPSILON, m_Ctx.PredictedVelocity.x * Time.fixedDeltaTime);
         
-            int hitPattern = 0b10000000;
+            int hitPattern = 0b00000000;
             int overallHitsThisRound = 0;
         
             for (int i = 0; i < 3; i++)

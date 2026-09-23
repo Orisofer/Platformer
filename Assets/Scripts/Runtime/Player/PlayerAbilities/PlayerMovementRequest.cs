@@ -7,12 +7,14 @@ namespace OriGame.Player
         public Vector2 Target;
         public int PriorityOnX;
         public int PriorityOnY;
+        public float GravityScale;
 
-        public PlayerMovementRequest(Vector2 target,  int priorityOnX, int priorityOnY)
+        public PlayerMovementRequest(Vector2 target,  int priorityOnX, int priorityOnY, float gravityScale)
         {
             Target  = target;
             PriorityOnX = priorityOnX;
             PriorityOnY = priorityOnY;
+            GravityScale = gravityScale;
         }
     }
 }

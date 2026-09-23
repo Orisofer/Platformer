@@ -25,6 +25,7 @@ namespace OriGame.Player
         private IGameLogger m_Logger;
         private PlayerMovementRequest[] m_MovementRequests;
         private IAbilityResolver m_AbilityResolver;
+        private ResolvedMovement m_ResolvedMovement;
     
         public event Action<PlayerContext> PlayerJumped;
         public event Action<PlayerContext> PlayerFalling;
@@ -142,33 +143,33 @@ namespace OriGame.Player
             
             m_MovementRequests = OnFixedUpdateAbilities(fixedDeltaTime);
             
-            Vector2 newFrameVelocity = m_AbilityResolver.ResolveMovement(ref m_MovementRequests, m_PlayerContext);
+            m_ResolvedMovement = m_AbilityResolver.ResolveMovement(m_MovementRequests);
             
-            ApplyGravity(ref newFrameVelocity);
+            ApplyGravity(ref m_ResolvedMovement, fixedDeltaTime);
             
-            UpdateCollisions(ref newFrameVelocity);
+            UpdateCollisions(ref m_ResolvedMovement);
             
-            UpdatePlayerState(ref newFrameVelocity);
+            UpdatePlayerState(in m_ResolvedMovement);
             
             ApplyPendingSnap();
         
-            ApplyMovement(newFrameVelocity);
+            ApplyMovement(in m_ResolvedMovement);
         }
 
-        private ref readonly PlayerMovementRequest[] OnFixedUpdateAbilities(float fixedDeltaTime)
+        private PlayerMovementRequest[] OnFixedUpdateAbilities(float fixedDeltaTime)
         {
             for (int i = 0; i < m_Abilities.Count; i++)
             {
                 m_MovementRequests[i] = m_Abilities[i].OnFixedUpdate(fixedDeltaTime);
             }
             
-            return ref m_MovementRequests;
+            return m_MovementRequests;
         }
         
-        private void UpdateCollisions(ref Vector2 newFrameVelocity)
+        private void UpdateCollisions(ref ResolvedMovement newFrameVelocity)
         {
             m_PlayerContext.CollisionPattern = 0;
-            m_PlayerContext.PredictedVelocity = newFrameVelocity;
+            m_PlayerContext.PredictedVelocity = newFrameVelocity.Target;
             
             m_PlayerContext.CollisionContext.Ground = m_CollisionDetection.GroundCheck();
             m_PlayerContext.CollisionContext.Ceiling = m_CollisionDetection.CeilingCheck();
@@ -185,36 +186,37 @@ namespace OriGame.Player
             {
                 CollisionDetectionResult colData = m_PlayerContext.CollisionContext.Ground;
                 RequestSnap(colData.CollidedTransform, SnapDirection.Ground, colData.Distance);
-                newFrameVelocity.y = 0f;
+                newFrameVelocity.Target.y = 0f;
             }
 
             // Ceiling Snap
-            if (m_PlayerContext.CollisionContext.Ceiling && newFrameVelocity.y > 0f)
+            if (m_PlayerContext.CollisionContext.Ceiling && newFrameVelocity.Target.y > 0f)
             {
                 CollisionDetectionResult colData = m_PlayerContext.CollisionContext.Ceiling;
                 RequestSnap(colData.CollidedTransform, SnapDirection.Ceiling, colData.Distance);
-                newFrameVelocity.y = 0f;
+                newFrameVelocity.Target.y = 0f;
             }
 
             // Wall Snaps
-            if (newFrameVelocity.x != 0)
+            if (newFrameVelocity.Target.x != 0)
             {
-                float currentPlayerDir = Mathf.Sign(newFrameVelocity.x);
+                float currentPlayerDir = Mathf.Sign(newFrameVelocity.Target.x);
                 if (HorizontalCollision(currentPlayerDir))
                 {
-                    newFrameVelocity.x = 0f;
+                    newFrameVelocity.Target.x = 0f;
                 }
             }
         }
         
-        private void UpdatePlayerState(ref Vector2 newFrameVelocity)
+        private void UpdatePlayerState(in ResolvedMovement resolvedMovement)
         {
             // 1. Ground / Ungrounded Transitions
             if (!m_PlayerContext.Grounded && m_PlayerContext.CollisionContext.Ground && !m_PlayerContext.Jumping)
             {
                 GroundTouch();
                 m_PlayerContext.LastGround = m_PlayerContext.CollisionContext.Ground.CollidedTransform;
-                PlayerGrounded?.Invoke(m_PlayerContext);
+                
+                RaisePlayerGroundedEvent();
             }
             else if (m_PlayerContext.Grounded && !m_PlayerContext.CollisionContext.Ground)
             {
@@ -226,7 +228,7 @@ namespace OriGame.Player
             // 2. Falling State update
             if (!m_PlayerContext.Grounded)
             {
-                if (newFrameVelocity.y < 0f && !m_PlayerContext.Falling)
+                if (resolvedMovement.Target.y < 0f && !m_PlayerContext.Falling)
                 {
                     m_PlayerContext.Falling = true;
                     
@@ -275,33 +277,31 @@ namespace OriGame.Player
             m_PlayerContext.AvailableJumps = m_PlayerControllerConfiguration.PlayerJumpConfiguration.MaxJumps;
         }
     
-        private void ApplyGravity(ref Vector2 predictedVelocity)
+        private void ApplyGravity(ref ResolvedMovement predictedVelocity, float fixedDeltaTime)
         {
-            if (m_PlayerContext.Jumping || m_PlayerContext.Dashing) return;
-            
             if (m_PlayerContext.Grounded && m_PlayerContext.CurrentVelocity.y <= 0f)
             {
-                predictedVelocity.y = 0f;
-
+                predictedVelocity.Target.y = 0f;
                 return;
             }
             
-            float airGravity = m_PlayerControllerConfiguration.FallAcceleration;
+            float gravityScale = predictedVelocity.GravityScale;
+            float airGravity = m_PlayerControllerConfiguration.FallAcceleration * gravityScale;
             float maxFallSpeed = m_PlayerControllerConfiguration.MaxFallSpeed;
                 
             float targetWithGravity = Mathf.MoveTowards(
                 m_PlayerContext.CurrentVelocity.y,
                 -maxFallSpeed,
-                airGravity * Time.fixedDeltaTime);
+                airGravity * fixedDeltaTime);
             
             float gravityDelta = targetWithGravity - m_PlayerContext.CurrentVelocity.y;
 
-            predictedVelocity.y += gravityDelta;
+            predictedVelocity.Target.y += gravityDelta;
         }
     
-        private void ApplyMovement(Vector2 finalFrameVelocity)
+        private void ApplyMovement(in ResolvedMovement finalFrameVelocity)
         {
-            m_Rigidbody.linearVelocity = finalFrameVelocity;
+            m_Rigidbody.linearVelocity = finalFrameVelocity.Target;
         }
     
         private void StoreCurrentVelocity()
@@ -367,6 +367,11 @@ namespace OriGame.Player
         private void RaisePlayerFallingEvent()
         {
             PlayerFalling?.Invoke(m_PlayerContext);
+        }
+
+        private void RaisePlayerGroundedEvent()
+        {
+            PlayerGrounded?.Invoke(m_PlayerContext);
         }
 
         public void RaiseJumpEvent()

@@ -3,12 +3,15 @@ using UnityEngine;
 
 public class AbilityResolverBasic : IAbilityResolver
 {
-    public Vector2 ResolveMovement(ref PlayerMovementRequest[] requests, PlayerContext playerContext)
+    private ResolvedMovement m_ResolvedMovement;
+    
+    public ref readonly ResolvedMovement ResolveMovement(PlayerMovementRequest[] requests)
     {
         int topPriorityX = int.MinValue;
         int topPriorityY = int.MinValue;
 
         Vector2 finalVelocity = Vector2.zero;
+        float gravityScale = 1.0f;
         
         for (int i = 0; i < requests.Length; i++)
         {
@@ -22,9 +25,15 @@ public class AbilityResolverBasic : IAbilityResolver
             {
                 topPriorityY =  requests[i].PriorityOnY;
                 finalVelocity.y = requests[i].Target.y;
+                gravityScale =  requests[i].GravityScale;
             }
         }
+        
+        m_ResolvedMovement.Clear();
+        
+        m_ResolvedMovement.Target = finalVelocity;
+        m_ResolvedMovement.GravityScale = gravityScale;
 
-        return finalVelocity;
+        return ref m_ResolvedMovement;
     }
 }
