@@ -15,5 +15,5 @@ MonoBehaviour:
   BounceEnabled: 1
   BounceDuration: 0.23
   BounceSpeed: 25
-  BounceBuffer: 0.1
+  BounceBuffer: 0.045
   DashGravityScale: 0
