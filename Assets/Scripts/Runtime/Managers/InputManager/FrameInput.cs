@@ -14,5 +14,7 @@ namespace OriGame.Input
         public bool MoveFinished;
         public bool DashPressed;
         public bool DashReleased;
+        public bool BouncePressed;
+        public bool BounceReleased;
     }
 }

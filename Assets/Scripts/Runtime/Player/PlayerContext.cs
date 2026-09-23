@@ -12,7 +12,7 @@ namespace OriGame.Player
         public LayerMask PlayerLayer;
         public Vector2 CurrentVelocity;
         public Vector2 PredictedVelocity;
-        public Vector2 HorizontalInputDir;
+        public Vector2 InputDir;
         public double TimeLeftTheGround;
         public float SkinWidth;
         public float CoyoteTime;
@@ -24,6 +24,7 @@ namespace OriGame.Player
         public bool Grounded;
         public bool Jumping;
         public bool Dashing;
+        public bool Bouncing;
         public bool Falling;
     }
 }

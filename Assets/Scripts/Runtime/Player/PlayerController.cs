@@ -182,7 +182,7 @@ namespace OriGame.Player
             m_PlayerContext.CollisionPattern |= m_PlayerContext.CollisionContext.WallRight.HitPattern;
 
             // Ground Snap
-            if (!m_PlayerContext.Grounded && m_PlayerContext.CollisionContext.Ground && !m_PlayerContext.Jumping)
+            if (!m_PlayerContext.Grounded && m_PlayerContext.CollisionContext.Ground && newFrameVelocity.Target.y <= 0f)
             {
                 CollisionDetectionResult colData = m_PlayerContext.CollisionContext.Ground;
                 RequestSnap(colData.CollidedTransform, SnapDirection.Ground, colData.Distance);

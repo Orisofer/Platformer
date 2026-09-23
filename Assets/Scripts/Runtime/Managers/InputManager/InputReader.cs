@@ -14,6 +14,8 @@ namespace OriGame.Input
         public event Action JumpReleased = delegate { };
         public event Action DashPressed = delegate { };
         public event Action DashReleased = delegate { };
+        public event Action BouncePressed = delegate { };
+        public event Action BounceReleased = delegate { };
 
         private InputEditor m_InputEditor;
     
@@ -72,6 +74,19 @@ namespace OriGame.Input
             if (context.phase == InputActionPhase.Canceled)
             {
                 DashReleased?.Invoke();
+            }
+        }
+
+        public void OnBounce(InputAction.CallbackContext context)
+        {
+            if (context.phase == InputActionPhase.Started)
+            {
+                BouncePressed?.Invoke();
+            }
+
+            if (context.phase == InputActionPhase.Canceled)
+            {
+                BounceReleased?.Invoke();
             }
         }
 

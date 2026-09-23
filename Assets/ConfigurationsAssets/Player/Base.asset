@@ -20,3 +20,4 @@ MonoBehaviour:
   PlayerMoveConfiguration: {fileID: 11400000, guid: 022d24c5329a2404c89f4eff9bc63a58, type: 2}
   PlayerJumpConfiguration: {fileID: 11400000, guid: 1839e7e505b014f1685365822e3d45b4, type: 2}
   PlayerDashConfiguration: {fileID: 11400000, guid: d07b9efc1109644f5bc01d2a8075a61c, type: 2}
+  PlayerBounceConfiguration: {fileID: 11400000, guid: 1fafcd639ec894468ba564c6c741061c, type: 2}

@@ -49,6 +49,8 @@ namespace OriGame.Player
         
         public override PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime)
         {
+            if (!m_Config.DashEnabled) return PlayerMovementRequest.bypass;
+            
             Vector2 dashVelocity = Vector2.zero;
             float gravityScale = m_Config.DashGravityScale;
 
@@ -101,9 +103,9 @@ namespace OriGame.Player
                 m_IsAirDashing = true;
             }
                     
-            if (m_PlayerContext.HorizontalInputDir.x != 0)
+            if (m_PlayerContext.InputDir.x != 0)
             {
-                m_DashDirection = new Vector2(Mathf.Sign(m_PlayerContext.HorizontalInputDir.x), 0f);
+                m_DashDirection = new Vector2(Mathf.Sign(m_PlayerContext.InputDir.x), 0f);
             }
             else
             {

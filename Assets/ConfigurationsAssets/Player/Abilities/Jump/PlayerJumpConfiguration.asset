@@ -21,3 +21,4 @@ MonoBehaviour:
   JumpBuffer: 0.15
   MaxJumpHoldTime: 0.25
   JumpReleaseDeceleration: 500
+  JumpGravityScale: 0

@@ -55,6 +55,8 @@ namespace OriGame.Player
 
         public override PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime)
         {
+            if (!m_Config.JumpEnabled) return PlayerMovementRequest.bypass;
+            
             Vector2 requestedVelocity = Vector2.zero;
             float gravityScale = 1.0f;
             requestedVelocity.y = m_PlayerContext.CurrentVelocity.y;

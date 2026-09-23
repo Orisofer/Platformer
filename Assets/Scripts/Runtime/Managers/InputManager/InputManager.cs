@@ -39,6 +39,8 @@ namespace OriGame.Input
             m_InputReader.JumpReleased += OnJumpReleased;
             m_InputReader.DashPressed += OnDashPressed;
             m_InputReader.DashReleased += OnDashReleased;
+            m_InputReader.BouncePressed += OnBouncePressed;
+            m_InputReader.BounceReleased += OnBounceReleased;
             
             m_InputReader.EnablePlayerActions();
         
@@ -134,6 +136,20 @@ namespace OriGame.Input
         
             DebugLogs("Jump Released");
         }
+        
+        private void OnBounceReleased()
+        {
+            m_FrameInput.BouncePressed = true;
+            
+            DebugLogs("Bounce Released");
+        }
+
+        private void OnBouncePressed()
+        {
+            m_FrameInput.BouncePressed = true;
+            
+            DebugLogs("Bounce Pressed");
+        }
 
         private void DebugLogs(string message)
         {
@@ -153,6 +169,8 @@ namespace OriGame.Input
             m_InputReader.MoveEnded -= OnMoveEnded;
             m_InputReader.JumpPressed -= OnJumpPressed;
             m_InputReader.JumpReleased -= OnJumpReleased;
+            m_InputReader.BouncePressed -= OnBouncePressed;
+            m_InputReader.BounceReleased -= OnBounceReleased;
         }
     }
 }

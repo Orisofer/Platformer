@@ -38,6 +38,13 @@ namespace OriGame.Player
         [Header("Dash")]
         
         public PlayerDashConfiguration PlayerDashConfiguration;
+        
+        // --------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------
+
+        [Header("Bounce")]
+        
+        public PlayerBounceConfiguration PlayerBounceConfiguration;
     }
 }
     

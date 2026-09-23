@@ -9,12 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 021c01c4ccdaa4188a6fe58f3fcb3fa8, type: 3}
-  m_Name: PlayerDashConfiguration
-  m_EditorClassIdentifier: Assembly-CSharp::OriGame.Player.PlayerDashConfiguration
-  DashEnabled: 1
-  DashDuration: 0.23
-  DashCooldown: 0.5
-  DashSpeed: 800
-  DashBuffer: 0.2
+  m_Script: {fileID: 11500000, guid: 395730951796c498796a9f74135454e7, type: 3}
+  m_Name: PlayerBounceConfiguration
+  m_EditorClassIdentifier: Assembly-CSharp::OriGame.Player.PlayerBounceConfiguration
+  BounceEnabled: 1
+  BounceDuration: 1
+  BounceSpeed: 30
+  BounceBuffer: 0.1
   DashGravityScale: 0

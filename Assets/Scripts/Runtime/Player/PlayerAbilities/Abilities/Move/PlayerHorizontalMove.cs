@@ -17,9 +17,9 @@ namespace OriGame.Player
         {
             if (!m_Config.MovementEnabled) return;
             
-            m_PlayerContext.HorizontalInputDir = frameInput.Direction;
+            m_PlayerContext.InputDir = frameInput.Direction;
             
-            if (m_PlayerContext.HorizontalInputDir == Vector2.zero)
+            if (m_PlayerContext.InputDir == Vector2.zero)
             {
                 m_PlayerContext.Walking = false;
             }
@@ -31,7 +31,9 @@ namespace OriGame.Player
     
         public override PlayerMovementRequest OnFixedUpdate(float fixedDeltaTime)
         {
-            float horizontalInputDir = m_PlayerContext.HorizontalInputDir.x;
+            if (!m_Config.MovementEnabled) return PlayerMovementRequest.bypass;
+            
+            float horizontalInputDir = m_PlayerContext.InputDir.x;
 
             Vector2 requestTarget = Vector2.zero;
         

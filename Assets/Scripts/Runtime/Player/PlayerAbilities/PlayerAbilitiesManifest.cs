@@ -13,6 +13,7 @@ namespace OriGame.Player
         private PlayerJump m_PlayerJump;
         private PlayerHorizontalMove m_PlayerHorizontalMove;
         private PlayerDash m_PlayerDash;
+        private PlayerBounce m_PlayerBounce;
         // -----------------------------------------------------------------
 
         public PlayerAbilitiesManifest(PlayerController playerController)
@@ -28,10 +29,12 @@ namespace OriGame.Player
             m_PlayerJump = new PlayerJump(m_PlayerControllerConfiguration.PlayerJumpConfiguration, m_PlayerController);
             m_PlayerHorizontalMove = new PlayerHorizontalMove(m_PlayerControllerConfiguration.PlayerMoveConfiguration, m_PlayerController);
             m_PlayerDash = new PlayerDash(m_PlayerControllerConfiguration.PlayerDashConfiguration, m_PlayerController);
+            m_PlayerBounce  = new PlayerBounce(m_PlayerControllerConfiguration.PlayerBounceConfiguration, m_PlayerController);
         
             abilities.Add(m_PlayerJump);
             abilities.Add(m_PlayerHorizontalMove);
             abilities.Add(m_PlayerDash);
+            abilities.Add(m_PlayerBounce);
         
             return abilities;
         }
