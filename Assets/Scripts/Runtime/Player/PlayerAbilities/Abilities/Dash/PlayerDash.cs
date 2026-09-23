@@ -61,7 +61,7 @@ namespace OriGame.Player
                 }
                 else
                 {
-                    return new PlayerMovementRequest(dashVelocity, -1, -1, gravityScale);
+                    return PlayerMovementRequest.bypass;
                 }
             }
             else

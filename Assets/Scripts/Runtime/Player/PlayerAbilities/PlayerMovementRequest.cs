@@ -16,5 +16,13 @@ namespace OriGame.Player
             PriorityOnY = priorityOnY;
             GravityScale = gravityScale;
         }
+
+        public static readonly PlayerMovementRequest bypass = new PlayerMovementRequest()
+        {
+            Target = Vector2.zero,
+            PriorityOnX = -1,
+            PriorityOnY = -1,
+            GravityScale = 1f
+        };
     }
 }
