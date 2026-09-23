@@ -89,7 +89,7 @@ namespace OriGame.Player
         private Vector2 UpdateDash(float fixedDeltaTime)
         {
             m_DashDurationTimer -= fixedDeltaTime;
-            return m_DashDirection * (m_Config.DashSpeed * fixedDeltaTime);
+            return m_DashDirection * m_Config.DashSpeed;
         }
 
         private Vector2 StartDash(float fixedDeltaTime)
@@ -119,7 +119,7 @@ namespace OriGame.Player
                 }
             }
 
-            return m_DashDirection * (m_Config.DashSpeed * fixedDeltaTime);
+            return m_DashDirection * m_Config.DashSpeed;
         }
     }
 }

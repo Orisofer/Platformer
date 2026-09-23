@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerBounceConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::OriGame.Player.PlayerBounceConfiguration
   BounceEnabled: 1
-  BounceDuration: 1
-  BounceSpeed: 30
+  BounceDuration: 0.23
+  BounceSpeed: 25
   BounceBuffer: 0.1
   DashGravityScale: 0
